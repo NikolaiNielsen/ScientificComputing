@@ -29,9 +29,7 @@ def lu_factorize(A):
         L[k+1:, k] = A[k+1:, k] / A[k, k]
 
         for j in range(k+1, n):
-            for i in range(k+1, n):
-                # Update remaining values of A
-                A[i, j] = A[i, j] - L[i, k] * A[k, j]
+            A[k+1:, j] = A[k+1:, j] - L[k+1:, k] * A[k, j]
 
         # Assign upper triangular part of A to U
         U[:k+1, k] = A[:k+1, k]
