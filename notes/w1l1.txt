@@ -1,0 +1,64 @@
+Approximations and their errors
+
+Start with an input:
+- Measured Data
+- Prior computations
+- Physical constants
+
+All of these have some uncertainty associated with them. Even exact physical constants, because we use a finite number representation - floating point.
+
+Approximate input is \hat{x} and given by
+\hat{x} = x + \Delta x
+where x is the true value, and \Delta x is the uncertainty/error
+
+The ideal result/output is f(x), and the ideal data is related to it by the function f
+The ideal input is related to the actual input by the error
+The computational solution \hat{f} relates the actual input to the computational result \hat{f}(\hat{x})
+
+The analysis of errors relates the computational result to the ideal result.
+
+The total forward error E_{tot} = \hat{f}(\hat{x}) - f(x)
+Hard to grapple with, though. So we split it into two
+
+E_{tot} = [\hat{f}(\hat{x}) - f(\hat{x})] + [f(\hat{x}) - f(x)]
+
+The first term is computational error, E_{comp}
+Second term is propagated data error, E_{data}
+
+Relative error is defined when f(x) =/= 0. Defined by:
+\hat f ( \hat x ) = f(x) + E_ tot = f(x) + (1 + E_ tot / f(x))
+
+Which means that
+\floor -log_10 \abs E_{tot} ^ {rel}
+is the first decimal digit affected by the error.
+
+Computational error:
+Can be broken down into two parts
+E_{comp} = E_{round} + E_{trunc}
+
+The rounding error is the accumulated error that comes by using a finite precision representation / inexact arithmetic
+The truncation error is defined as everything else. A little more specificly, this is the computational error we get even with exact arithmetic (for example from Taylor expansions, simplifying the physical model, finite differences or other stuff)
+
+
+Propagated data error:
+error/uncertainty in final result from amplification or contraction of data error. (corresponding to |f'(\Delta x)| > 1 and < 1 respectively (think propagation of errors))
+
+Takeaway - you can have more/fewer significant digits in your result than in your input.
+Example: f(x) = sqrt(x)
+Foward error: |(\Delta y) / y| = | (f(x+\Delta x) - f(x) /f(x)) |  = |(\Dx f'(x) + O(x^2)) / (f(x))|
+Or
+1/2 | (\Dx + O(x^2)) / (sqrt(x) sqrt(x)) | = 1/2 | \Delta x / x| + O(x) |\Delta x / x|
+														^ Relative data error
+So error in result is one half the error of the input.
+f(x) = x^{1/10n} -> result has n more significant decimal digits than input, for example.
+
+Condition number: defined as forward error divided by data error:
+COND = |\Dy/y| / |\Dx/x|
+or
+|\Dy/y| = COND |\Dx/x|
+Also:
+COND = |x f'(x)/f(x)| + O(\Dx^2/f(x))
+(from rearranging, and using Taylors theorem)
+
+
+
