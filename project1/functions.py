@@ -26,9 +26,11 @@ def lu_factorize(A):
             # Stop if singular
             return
 
+        # Create subdiagonal elements of the k'th column of L
         L[k+1:, k] = A[k+1:, k] / A[k, k]
 
         for j in range(k+1, n):
+            # Apply transformation matrix to the rest of the submatrix
             A[k+1:, j] = A[k+1:, j] - L[k+1:, k] * A[k, j]
 
         # Assign upper triangular part of A to U

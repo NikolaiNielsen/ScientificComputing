@@ -16,5 +16,3 @@ omega = np.array((1.300,  1.607, 3.000))
 
 A = np.array([[1, 2, 2], [4, 4, 2], [4, 6, 4]])
 L, U = lu_factorize(A)
-print(L)
-print(U)
