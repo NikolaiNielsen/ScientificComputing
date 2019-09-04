@@ -41,9 +41,9 @@
 		\begin{tabular}{c|c|c}
 			$ \omega $ & $\text{cond}_{\infty}(\V{E}-\omega \V{S})$ & Valid significant digits\\
 			\hline
-			1.300 & &\\
-			1.607 & &\\
-			3.000 & &
+			1.300 & 303.0742 & 5\\
+			1.607 & 327825.2 & 2\\
+			3.000 & 27.78252 & 6
 		\end{tabular}
 		\caption{Condition number for ($ \V{E}-\omega \V{S} $)}
 		\label{tab:condition}
@@ -73,9 +73,9 @@
 		\begin{tabular}{c|c|c}
 			$ \omega $ & relative error & valid significant digits \\
 			\hline
-			1.300 & & \\
-			1.607 & & \\
-			3.000 & & 
+			1.300 & 4.751$ \D 10^{-3} $ & 2\\
+			1.607 & 5.090$ \D 10^0 $ & 0\\
+			3.000 & 4.135 $ \D 10^{-4} $ & 3 
 		\end{tabular}
 		\caption{relative error in $ \V{x} $ with perturbed $ \omega $.}
 		\label{tab:perturbed}
@@ -95,23 +95,25 @@
 	the solution, found with my implemented function is
 	\begin{equation}\label{key}
 		\V{x} = \begin{bmatrix}
-		0 \\ 0 \\ 0
+		-4 \\ 7 \\ 5
 		\end{bmatrix},
 	\end{equation}
 	with a residual of
 	\begin{equation}\label{key}
-		||\V{x} - \V{x}_{\text{np}}||_2 = ,
+		||\V{x} - \V{x}_{\text{np}}||_2 = 5.704 \D 10^{-15},
 	\end{equation}
-	where $ \V{x}_{\text{np}} $ is the solution obtained with \texttt{np.linalg.solve}.
+	where $ \V{x}_{\text{np}} $ is the solution obtained with \texttt{np.linalg.solve}. As we see, the residual is on the order of 10$ \epsilon $.
 	
 	\subsection*{D1}
 	The upper and lower bounds on $ \alpha(\omega\pm \delta \omega) $ for $ \omega \in \{1.300, 1.607, 3.000\} $ and $ \delta \omega = 0.5\D10^{-3} $ are tabulated in \ref{tab:bounds}
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{c|c|c|c|c}
-			$ \omega $ & Lower bound & ``True'' value & Upper bound & max($ ||\Delta\alpha||_{\infty}/||\alpha||_{\infty} $) \\
+			$ \omega $ & $ \alpha(\omega-\delta \omega) $ & $ \alpha(\omega) $ & $ \alpha(\omega-\delta \omega) $ & max($ ||\Delta\alpha||_{\infty}/||\alpha||_{\infty} $) \\
 			\hline
-			1.300 & Hello & there, & General & Kenobi
+			1.300 & -4.893 & -4.876 & -4.859 & 3.586$ \D10^{-3} $ \\
+			1.607 & 151.096 & -434.961 & -91.094 & 1.347 $ \D10^0 $ \\
+			3.000 & -2.905$ \D 10^{-1} $ & -2.904 $ \D 10^{-1} $ & -2.902 $ \D 10^{-1} $ & 4.006 $ \D 10^{-4} $
 		\end{tabular}
 		\caption{Upper and lower bounds on $ \alpha(\omega) $.}
 	\end{table}
