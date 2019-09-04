@@ -77,6 +77,7 @@ def linsolve(A, b):
     L, U = lu_factorize(A)
     y = forward_substitute(L, b)
     x = back_substitute(U, y)
+    return x
 
 
 def forward_error_bound(E, S, omega, domega=5e-4):
