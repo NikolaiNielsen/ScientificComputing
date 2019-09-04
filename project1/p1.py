@@ -68,3 +68,12 @@ def e1():
     ax.set_ylabel(r'$\alpha(\omega)$')
     ax.set_title('Polarizability of water, as a function of the frequency')
     plt.show()
+
+
+def e2():
+    omega = 1.60686978
+    M = E-omega*S
+    cond = calc_cond(M)
+    print("\nAnswer e2:")
+    print(f"Condition number for matrix with omega={o}")
+    print(cond)
