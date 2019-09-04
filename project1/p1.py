@@ -82,7 +82,7 @@ def e2():
     cond = calc_cond(M)
     print("\nAnswer e2:")
     print(f"Condition number for matrix with omega={omega}")
-    print(cond)
+    print(f'{cond:4e}')
 
 
 if __name__ == "__main__":

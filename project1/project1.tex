@@ -11,26 +11,6 @@
 \begin{document}
 	\maketitle
 	\section{Questions for Week 1}
-	We are working with the polarizability $ \alpha $ of water as a function of the frequency $ \omega $. The polarizability is given by
-	\begin{equation}\label{key}
-		\alpha(\omega) = \V{z}^T \V{x}
-	\end{equation}
-	Where $ \V{x} $ is the solution to the system
-	\begin{equation}\label{key}
-		(\V{E}-\omega\V{S})\V{x} =\V{x}
-	\end{equation}
-	with $\V{E}$, $ \V{S} $ and $ \V{z} $ being given as block matrices (or vectors in case of $ \V{z} $):
-	\begin{equation}\label{key}
-		\V{E} = \begin{bmatrix}
-		\V{A} & \V{B} \\ \V{B} & \V{A}
-		\end{bmatrix}, \quad \V{S} = \begin{bmatrix}
-		\V{I} & \mathbf{0} \\ \mathbf{0} & -\V{I}
-		\end{bmatrix}, \quad \V{z} = \begin{bmatrix}
-		\V{y} \\ -\V{y}
-		\end{bmatrix}
-	\end{equation}
-	where $ \V{A} $, $ \V{B} $ and $ \V{y} $ is supplied for the problem, and $ \V{I} $ is the appropriate identity matrix.
-	
 	\subsection*{A1}
 	Solved in code. The first function of the file \texttt{functions.py}
 	
@@ -119,11 +99,23 @@
 	\end{table}
 	
 	\subsection*{D2}
+	Both of the error bounds work - they are of course upper bounds, and all values fall within the bounds. Though the bound from (b) is much closer to the calculated value.
 	
 	\subsection*{E1}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{polarizability.pdf}
+		\caption{}
+		\label{fig:polarizability}
+	\end{figure}
 	
 	
 	\subsection*{E2}
+	Around the value $ \omega=1.60686978 $ the polarizability encounters a discontinuity (at least within the resolution of the system. This is also seen in the condition number
+	\begin{equation}\label{key}
+		\text{cond}_{\infty} (\V{E}-\omega \V{S}) = 1.734 \D10^{10}
+	\end{equation}
+	meaning the matrix approaches non-singularity at this value.
 	
 	
 \end{document}
