@@ -11,11 +11,14 @@ z = np.array([*yvec, *-yvec])
 
 def a2():
     omega = np.array((1.300, 1.607, 3.000))
+    z = 0.5e-8
     print("\nAnswer a2:")
     for o in omega:
         M = E - o*S
+        cond = calc_cond(M)
         print(f"Condition number for omega={o}")
-        print(calc_cond(M))
+        print(cond)
+        print(np.floor(-np.log10(cond*z)))
 
 
 def b1():
@@ -24,7 +27,8 @@ def b1():
     for o in omega:
         e = forward_error_bound(E, S, o)
         print(f"Error bound for omega={o}:")
-        print(e)
+        print(f"{e:.4e}")
+        print(np.floor(-np.log10(e)))
 
 
 def c():
@@ -35,7 +39,8 @@ def c():
     print("\nAnswer c:")
     print("Solving linear system Ax=b")
     print(x_me)
-    print(x_np - x_me)
+    res = np.linalg.norm(x_me-x_np, ord=2)
+    print(res)
 
 
 def d1():
@@ -53,6 +58,7 @@ def d1():
         print(upper)
         print(f'Lower bound')
         print(lower)
+        print(max(abs((alpha-upper)/alpha), abs((alpha-lower)/alpha)))
 
 
 def e1():
@@ -75,5 +81,14 @@ def e2():
     M = E-omega*S
     cond = calc_cond(M)
     print("\nAnswer e2:")
-    print(f"Condition number for matrix with omega={o}")
+    print(f"Condition number for matrix with omega={omega}")
     print(cond)
+
+
+if __name__ == "__main__":
+    a2()
+    b1()
+    c()
+    d1()
+    e1()
+    e2()
