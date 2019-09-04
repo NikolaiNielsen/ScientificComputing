@@ -41,7 +41,7 @@ def lu_factorize(A):
     return L, U
 
 
-def forward_substitution(L, b):
+def forward_substitute(L, b):
     """
     Performs forward substitution on the lower triangular system Ly=b to solve
     for y. Assumes the diagonal of L is 1.
@@ -50,3 +50,18 @@ def forward_substitution(L, b):
     for i in range(b.size):
         y[i] = b[i] - L[i, :i].dot(y[:i])
     return y
+
+
+def back_substitute(U, y):
+    """
+    Performs backwards substitution on the upper triangular system Ux=y to
+    solve for x. Does not assume a diagonal of U of 1.
+    """
+
+    # We could actually combine the forward and backwards substitution, if we
+    # define i -> -i for backward substitution, and run the loop in the
+    # "forward" direction.
+    x = np.zeros(y.shape)
+    for i in reversed(range(y.size)):
+        x[i] = (y[i] - U[i, i:].dot(x[i:]))/U[i, i]
+    return x
