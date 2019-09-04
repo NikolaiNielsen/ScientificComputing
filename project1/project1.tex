@@ -1,0 +1,127 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{Nikolai}
+\usepackage[margin=0.75in]{geometry}
+
+\title{Scientific Computing Project 1}
+\author{Nikolai Plambech Nielsen\\LPK331}
+\date{\today}
+
+
+\begin{document}
+	\maketitle
+	\section{Questions for Week 1}
+	We are working with the polarizability $ \alpha $ of water as a function of the frequency $ \omega $. The polarizability is given by
+	\begin{equation}\label{key}
+		\alpha(\omega) = \V{z}^T \V{x}
+	\end{equation}
+	Where $ \V{x} $ is the solution to the system
+	\begin{equation}\label{key}
+		(\V{E}-\omega\V{S})\V{x} =\V{x}
+	\end{equation}
+	with $\V{E}$, $ \V{S} $ and $ \V{z} $ being given as block matrices (or vectors in case of $ \V{z} $):
+	\begin{equation}\label{key}
+		\V{E} = \begin{bmatrix}
+		\V{A} & \V{B} \\ \V{B} & \V{A}
+		\end{bmatrix}, \quad \V{S} = \begin{bmatrix}
+		\V{I} & \mathbf{0} \\ \mathbf{0} & -\V{I}
+		\end{bmatrix}, \quad \V{z} = \begin{bmatrix}
+		\V{y} \\ -\V{y}
+		\end{bmatrix}
+	\end{equation}
+	where $ \V{A} $, $ \V{B} $ and $ \V{y} $ is supplied for the problem, and $ \V{I} $ is the appropriate identity matrix.
+	
+	\subsection*{A1}
+	Solved in code. The first function of the file \texttt{functions.py}
+	
+	\subsection*{A2}
+	For the three values of $ \omega \in \{1.300, 1.607, 3.000\} $, the condition number of the matrix $ \V{E}-\omega \V{S} $ under the max norm is tabulated in table \ref{tab:condition} (along with the results for the second part of the problem. See below)
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c}
+			$ \omega $ & $\text{cond}_{\infty}(\V{E}-\omega \V{S})$ & Valid significant digits\\
+			\hline
+			1.300 & &\\
+			1.607 & &\\
+			3.000 & &
+		\end{tabular}
+		\caption{Condition number for ($ \V{E}-\omega \V{S} $)}
+		\label{tab:condition}
+	\end{table}
+	If everything except for the relative uncertainty in $ \V{z} $ is exact, then the relative uncertainty in the solution $ \V{x} $ is given by
+	\begin{equation}\label{eq:cond}
+		\Big|\Big|\frac{\Delta \V{x}}{\V{x}}\Big|\Big|_{\infty} = \text{cond}_{\infty} (\V{E}-\omega\V{S}) \Big|\Big|\frac{\Delta \V{z}}{\V{z}}\Big|\Big|_{\infty}
+	\end{equation}
+	which of course is the matrix equivalent to the scalar law. The difference here is that the matrix condition number has a lower bound of exactly 1 (then all column vectors are orthogonal to each other), whereas for a scalar we have a lower bound of 0.
+	
+	This also means that there is no way to ``conjure'' up more significant digits for a system of linear equations - we can only hope to keep the same amount of significant digits in the result as in the input.
+	
+	For this specific example we get the number of digits as the exponent on the r.h.s. of equation \ref{eq:cond}, which is essentially:
+	\begin{equation}\label{eq:sigfig}
+		\bigg\lfloor -\log_{10} \Big|\Big|\frac{\Delta \V{x}}{\V{x}}\Big|\Big|_{\infty}\bigg\rfloor
+	\end{equation}
+	The results are again tabulated in table \ref{tab:condition}.
+	
+	\subsection*{B1}
+	Again, the number of valid significant digits is given by equation \ref{eq:sigfig}, but this time the relative error is
+	\begin{equation}\label{key}
+		\frac{||\Delta \V{x} ||_{\infty}}{||\hat{\V{x}} ||_{\infty}} \leq \text{cond}_{\infty} (\V{E} - \omega \V{S}) \frac{||\delta \omega \V{S}||_{\infty}}{||\V{E} - \omega \V{S}||_{\infty}}
+	\end{equation}
+	The results are tabulated below in \ref{tab:perturbed}:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c}
+			$ \omega $ & relative error & valid significant digits \\
+			\hline
+			1.300 & & \\
+			1.607 & & \\
+			3.000 & & 
+		\end{tabular}
+		\caption{relative error in $ \V{x} $ with perturbed $ \omega $.}
+		\label{tab:perturbed}
+	\end{table}
+	
+	\subsection*{C}
+	The functions are implemented (along with a wrapper function to actually solve the linear system) in \texttt{functions.py}. For the matrix system
+	\begin{equation}\label{key}
+		\begin{bmatrix}
+		2 & 1 & 1 \\ 4 & 1 & 4 \\ -6 & -5 & 3
+		\end{bmatrix} \begin{bmatrix}
+		x_1 \\ x_2 \\ x_3
+		\end{bmatrix} = \begin{bmatrix}
+		4 \\ 11 \\ 4
+		\end{bmatrix},
+	\end{equation}
+	the solution, found with my implemented function is
+	\begin{equation}\label{key}
+		\V{x} = \begin{bmatrix}
+		0 \\ 0 \\ 0
+		\end{bmatrix},
+	\end{equation}
+	with a residual of
+	\begin{equation}\label{key}
+		||\V{x} - \V{x}_{\text{np}}||_2 = ,
+	\end{equation}
+	where $ \V{x}_{\text{np}} $ is the solution obtained with \texttt{np.linalg.solve}.
+	
+	\subsection*{D1}
+	The upper and lower bounds on $ \alpha(\omega\pm \delta \omega) $ for $ \omega \in \{1.300, 1.607, 3.000\} $ and $ \delta \omega = 0.5\D10^{-3} $ are tabulated in \ref{tab:bounds}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c}
+			$ \omega $ & Lower bound & ``True'' value & Upper bound & max($ ||\Delta\alpha||_{\infty}/||\alpha||_{\infty} $) \\
+			\hline
+			1.300 & Hello & there, & General & Kenobi
+		\end{tabular}
+		\caption{Upper and lower bounds on $ \alpha(\omega) $.}
+	\end{table}
+	
+	\subsection*{D2}
+	
+	\subsection*{E1}
+	
+	
+	\subsection*{E2}
+	
+	
+\end{document}
