@@ -39,3 +39,14 @@ def lu_factorize(A):
     # Assign last column of A to U
     U[:, -1] = A[:, -1]
     return L, U
+
+
+def forward_substitution(L, b):
+    """
+    Performs forward substitution on the lower triangular system Ly=b to solve
+    for y. Assumes the diagonal of L is 1.
+    """
+    y = np.zeros(b.shape)
+    for i in range(b.size):
+        y[i] = b[i] - L[i, :i].dot(y[:i])
+    return y
