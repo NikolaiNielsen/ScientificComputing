@@ -68,6 +68,18 @@ def back_substitute(U, y):
     return x
 
 
+def linsolve(A, b):
+    """
+    Solve the linear system Ax=b with LU-decomposition and
+    forward/back-substitution.
+    """
+    # Copy the matrix so as not to change it in place.
+    A = A.copy()
+    L, U = lu_factorize(A)
+    y = forward_substitute(L, b)
+    x = back_substitute(U, y)
+
+
 def forward_error_bound(E, S, omega, domega=5e-4):
     """
     Calculates the error bound from question b1 with a standard pertubation of
