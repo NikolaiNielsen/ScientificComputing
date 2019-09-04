@@ -67,7 +67,7 @@ def e1():
     ax.set_xlabel(r'$\omega$')
     ax.set_ylabel(r'$\alpha(\omega)$')
     ax.set_title('Polarizability of water, as a function of the frequency')
-    plt.show()
+    fig.savefig('polarizability.pdf')
 
 
 def e2():
