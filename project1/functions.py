@@ -19,7 +19,6 @@ def lu_factorize(A):
 
     # Initialize arrays needed
     n = A.shape[0]
-    A2 = A.copy()
     L = np.eye(n)
     U = np.zeros(A.shape)
     for k in range(n-1):
@@ -28,17 +27,17 @@ def lu_factorize(A):
             return
 
         # Create subdiagonal elements of the k'th column of L
-        L[k+1:, k] = A2[k+1:, k] / A2[k, k]
+        L[k+1:, k] = A[k+1:, k] / A[k, k]
 
         for j in range(k+1, n):
             # Apply transformation matrix to the rest of the submatrix
-            A2[k+1:, j] = A2[k+1:, j] - L[k+1:, k] * A2[k, j]
+            A[k+1:, j] = A[k+1:, j] - L[k+1:, k] * A[k, j]
 
         # Assign upper triangular part of A to U
-        U[:k+1, k] = A2[:k+1, k]
+        U[:k+1, k] = A[:k+1, k]
 
     # Assign last column of A to U
-    U[:, -1] = A2[:, -1]
+    U[:, -1] = A[:, -1]
     return L, U
 
 
