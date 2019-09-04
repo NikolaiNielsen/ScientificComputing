@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def cond(M):
+def calc_cond(M):
     """
     Calculates the condition number of a given matrix M using the max-norm
     """
@@ -66,3 +66,32 @@ def back_substitute(U, y):
     for i in reversed(range(y.size)):
         x[i] = (y[i] - U[i, i:].dot(x[i:]))/U[i, i]
     return x
+
+
+def forward_error_bound(E, S, omega, domega=5e-4):
+    """
+    Calculates the error bound from question b1 with a standard pertubation of
+    0.5*10^-3.
+    """
+
+    M = E-omega*S
+    cond = calc_cond(M)
+    num = np.linalg.norm(M, ord=np.inf)
+    # den = np.linalg.norm(domega*S, ord=np.inf)
+    # Well, S is a diagonal matrix with unity elements (alternating signs,
+    # though), so the max-norm is just the multiplier
+    den = domega
+    return cond * den / num
+
+
+def solve_alpha(omega, E, S, z):
+    """
+    Solves the polarization problem using LU-decomposition
+    """
+
+    M = E-omega*S
+    L, U = lu_factorize(M)
+    y = forward_substitute(L, z)
+    x = back_substitute(U, y)
+    alpha = z.dot(x)
+    return alpha
