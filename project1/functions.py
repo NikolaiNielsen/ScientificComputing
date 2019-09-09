@@ -107,3 +107,25 @@ def solve_alpha(omega, E, S, z):
     x = back_substitute(U, y)
     alpha = z.dot(x)
     return alpha
+
+
+def householder_QR(A):
+    """
+    Performs householder QR factorization on a rectangular (m,n) matrix, with
+    m>n.
+    """
+    m, n = A.shape
+    Q = np.zeros(m, m)
+    R = np.zeros(m, n)
+
+    return Q, R
+
+
+def least_squares(A, b):
+    """
+    Performs a least-squares fit for the rectangular system Ax=b.
+    """
+    m, n = A.shape
+    x = np.zeros(n)
+
+    return x
