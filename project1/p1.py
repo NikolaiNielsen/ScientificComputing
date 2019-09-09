@@ -107,7 +107,7 @@ def least_squares_test():
     x = least_squares(A, b)
 
 
-def least_squares_P_test():
+def g():
     omega_p = 1.6
     omega = np.linspace(1.2, 4, 1000)
     omega = omega[omega < omega_p]
@@ -117,11 +117,6 @@ def least_squares_P_test():
 
     x1, P1 = least_squares_P(omega, alpha, 4)
     x2, P2 = least_squares_P(omega, alpha, 6)
-    # fig, ax = plt.subplots()
-    # ax.plot(omega, alpha, label='alpha')
-    # ax.plot(omega, P1, label='n=4')
-    # ax.plot(omega, P2, label='n=6')
-    # ax.legend()
 
     rel1 = np.abs((P1-alpha)/alpha)
     rel2 = np.abs((P2-alpha)/alpha)
@@ -131,7 +126,8 @@ def least_squares_P_test():
     ax2.plot(omega, rel2, label='n=6')
     ax2.set_yscale('log')
     ax2.set_xlabel(r'$\omega$')
-    ax2.set_ylabel(r'$\log_{10} |(P(\omega) - \alpha(\omega))/\alpha(\omega)|$')
+    ax2.set_ylabel(
+        r'$\log_{10} |(P(\omega) - \alpha(\omega))/\alpha(\omega)|$')
     ax2.legend()
 
     ax3.plot(omega, np.floor(-np.log10(rel1)), label='n=4')
@@ -143,20 +139,42 @@ def least_squares_P_test():
     fig2.savefig('g34.pdf')
 
 
-def Q_test():
+def h():
     omega = np.linspace(1.2, 4, 1000)
     alpha = np.zeros(omega.shape)
     for n in range(omega.size):
         alpha[n] = solve_alpha(omega[n], E, S, z)
 
-    n = 2
-    params, Q = least_squares_Q(omega, alpha, n)
+    params1, Q1 = least_squares_Q(omega, alpha, 2)
+    params2, Q2 = least_squares_Q(omega, alpha, 4)
 
-    fig, ax = plt.subplots()
-    ax.plot(omega, alpha, label='data')
-    ax.plot(omega, Q, label='model')
-    ax.legend()
-    plt.show()
+    a1 = params1[:3]
+    b1 = params1[3:]
+    a2 = params2[:5]
+    b2 = params2[5:]
+    print("h: parameters")
+    print(a1, b1)
+    print(a2, b2)
+
+    rel1 = np.abs((Q1-alpha)/alpha)
+    rel2 = np.abs((Q2-alpha)/alpha)
+    fig2, (ax2, ax3) = plt.subplots(ncols=2, figsize=(8, 4))
+    ax2.plot(omega, rel1, label='n=2')
+    ax2.plot(omega, rel2, label='n=4')
+    ax2.set_yscale('log')
+    ax2.set_xlabel(r'$\omega$')
+    ax2.set_ylabel(
+        r'$\log_{10} |(Q(\omega) - \alpha(\omega))/\alpha(\omega)|$')
+    ax2.legend()
+
+    ax3.plot(omega, np.floor(-np.log10(rel1)), label='n=2')
+    ax3.plot(omega, np.floor(-np.log10(rel2)), label='n=4')
+    ax3.legend()
+    ax3.set_xlabel(r'$\omega$')
+    ax3.set_ylabel(r'Number of significant digits of $Q(\omega)$')
+    fig2.tight_layout()
+    fig2.savefig('h.pdf')
+
 
 if __name__ == "__main__":
-    Q_test()
+    h()
