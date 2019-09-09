@@ -114,10 +114,29 @@ def householder_QR(A):
     Performs householder QR factorization on a rectangular (m,n) matrix, with
     m>n.
     """
+    A = A.copy()
     m, n = A.shape
-    Q = np.zeros(m, m)
-    R = np.zeros(m, n)
+    Q = np.zeros((m, m))
+    # R = np.zeros(m, n)
+    H_list = []
 
+    for i in range(n):
+        a = A[:, i]
+        alpha = -a[i]/abs(a[i]) * np.sqrt(np.sum(a[i:]**2))
+        v = np.zeros(m)
+        v[i:] = a[i:]
+        v[i] = v[i] - alpha
+        beta = v.dot(v)
+        if beta == 0:
+            continue
+        else:
+            H = np.identity(m) - 2 * np.outer(v, v) / beta
+            H_list.append(H)
+            for j in range(i, n):
+                gamma = v.dot(A[:, j])
+                A[:, j] = A[:, j] - (2*gamma/beta) * v
+
+    R = A
     return Q, R
 
 
