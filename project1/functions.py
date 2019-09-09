@@ -116,7 +116,7 @@ def householder_QR(A):
     """
     A = A.copy()
     m, n = A.shape
-    Q = np.zeros((m, m))
+    Q = np.identity(m)
     # R = np.zeros(m, n)
     H_list = []
 
@@ -131,13 +131,12 @@ def householder_QR(A):
             continue
         else:
             H = np.identity(m) - 2 * np.outer(v, v) / beta
-            H_list.append(H)
+            Q = H@Q
             for j in range(i, n):
                 gamma = v.dot(A[:, j])
-                A[:, j] = A[:, j] - (2*gamma/beta) * v
-
+                A[:, j] = A[:, j] - ((2*gamma/beta) * v)
     R = A
-    return Q, R, H_list
+    return Q.T, R
 
 
 def least_squares(A, b):
