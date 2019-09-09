@@ -199,7 +199,7 @@ def least_squares_Q(x, y, n):
     for j in range(n+1):
         A[:, j] = x**j
     for j in range(1, n+1):
-        A[:, j+b_start-1] = y * x**j
+        A[:, j+b_start-1] = -y * x**j
 
     params = least_squares(A, y)
     Q = calc_Q(x, params)
