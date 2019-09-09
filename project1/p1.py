@@ -81,11 +81,10 @@ def e2():
     M = E-omega*S
     cond = calc_cond(M)
     print("\nAnswer e2:")
-    print(f"Condition number for matrix with omega={omega}")
-    print(f'{cond:4e}')
+    print(f"Condition number for matrix with omega={omega}: {cond:4e}")
 
 
-def householder_test():
+def f():
     A = np.array([[1., 0, 0],
                   [0., 1, 0],
                   [0., 0, 1],
@@ -94,17 +93,15 @@ def householder_test():
                   [0., -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
     Q, R = householder_QR(A)
-
-
-def least_squares_test():
-    A = np.array([[1., 0, 0],
-                  [0., 1, 0],
-                  [0., 0, 1],
-                  [-1., 1, 0],
-                  [-1., 0, 1],
-                  [0., -1, 1]])
-    b = np.array((1237, 1941, 2417, 711, 1177, 475))
+    identity = Q.T @ Q
+    print(A)
+    print(b)
     x = least_squares(A, b)
+
+    print('f:')
+    print(f'Max norm of (Q^T x Q): {calc_max_norm(identity)}')
+    print(f'Is A close to QR? np.isclose(A,QR)={np.isclose(A, Q@R).all()}')
+    print(f'linear least square fit: x={x}')
 
 
 def g():
@@ -117,6 +114,9 @@ def g():
 
     x1, P1 = least_squares_P(omega, alpha, 4)
     x2, P2 = least_squares_P(omega, alpha, 6)
+    print('g: parameters:')
+    print(x1)
+    print(x2)
 
     rel1 = np.abs((P1-alpha)/alpha)
     rel2 = np.abs((P2-alpha)/alpha)
@@ -177,4 +177,4 @@ def h():
 
 
 if __name__ == "__main__":
-    h()
+    f()
