@@ -150,19 +150,11 @@ def Q_test():
         alpha[n] = solve_alpha(omega[n], E, S, z)
 
     n = 2
-    # params, Q = least_squares_Q(omega, alpha, n)
+    params, Q = least_squares_Q(omega, alpha, n)
 
-    params = [3, 2, 1, 0.5, 1]
-    x = np.linspace(0, 1)
-    Q = calc_Q(x, params)
-
-    Q2 = (params[0] + params[1]*x + params[2]*x**2)/(1 + params[3]*x +
-                                                     params[4]*x**2)
     fig, ax = plt.subplots()
-    ax.plot(x, Q, label='func')
-    ax.plot(x, Q2, label='manual')
-    # ax.plot(omega, alpha)
-    # ax.plot(omega, Q)
+    ax.plot(omega, alpha, label='data')
+    ax.plot(omega, Q, label='model')
     ax.legend()
     plt.show()
 
