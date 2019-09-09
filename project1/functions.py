@@ -6,10 +6,19 @@ def calc_cond(M):
     Calculates the condition number of a given matrix M using the max-norm
     """
     M_inv = np.linalg.inv(M)
-    M_norm = np.linalg.norm(M, ord=np.inf)
-    M_inv_norm = np.linalg.norm(M_inv, ord=np.inf)
+    M_norm = calc_max_norm(M)
+    M_inv_norm = calc_max_norm(M_inv)
     cond_num = M_norm * M_inv_norm
     return cond_num
+
+
+def calc_max_norm(M):
+    """
+    Calculate max norm of a matrix
+    """
+    # We need the maximum absolute row sum of a matrix. So:
+    Norm = np.max(np.sum(np.abs(M), axis=1))
+    return Norm
 
 
 def lu_factorize(A):
