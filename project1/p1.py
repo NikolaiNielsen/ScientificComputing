@@ -85,10 +85,16 @@ def e2():
     print(f'{cond:4e}')
 
 
+def householder_test():
+    A = np.array([[1, 0, 0],
+                  [0, 1, 0],
+                  [0, 0, 1],
+                  [-1, 1, 0],
+                  [-1, 0, 1],
+                  [0, -1, 1]])
+    b = np.array((1237, 1941, 2417, 711, 1177, 475))
+    Q, R = householder_QR(A)
+    print(R)
+
 if __name__ == "__main__":
-    a2()
-    b1()
-    c()
-    d1()
-    e1()
-    e2()
+    householder_test()
