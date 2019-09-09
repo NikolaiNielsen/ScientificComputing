@@ -95,5 +95,18 @@ def householder_test():
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
     Q, R = householder_QR(A)
 
+
+def least_squares_test():
+    A = np.array([[1., 0, 0],
+                  [0., 1, 0],
+                  [0., 0, 1],
+                  [-1., 1, 0],
+                  [-1., 0, 1],
+                  [0., -1, 1]])
+    b = np.array((1237, 1941, 2417, 711, 1177, 475))
+    x = least_squares(A, b)
+    print(x)
+
+
 if __name__ == "__main__":
-    householder_test()
+    least_squares_test()
