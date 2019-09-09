@@ -154,8 +154,8 @@ def least_squares(A, b):
     """
     m, n = A.shape
     Q, R = householder_QR(A)
-    b = Q.T@b
-    x = back_substitute(R[:n], b[:n])
+    b2 = Q.T@b
+    x = back_substitute(R[:n], b2[:n])
 
     return x
 
@@ -172,5 +172,58 @@ def least_squares_P(x, y, n):
     A = np.zeros((m, n+1))
     for j in range(n+1):
         A[:, j] = x**(2*j)
-    x = least_squares(A, y)
-    return x
+    res = least_squares(A, y)
+
+    P = np.zeros(x.shape)
+    for j in range(n+1):
+        P = P + res[j] * x**(2*j)
+    return res, P
+
+
+def least_squares_Q(x, y, n):
+    """
+    Performs a linear least squares fit to a rational approximation function -
+    using a linear approximation for Q:
+    Q = a_j omega^j - Q b_j omega^j, and Q \approx alpha
+    So we perform the linear fit on the system
+    alpha = a_j omega^j - alpha b_j omega^j
+    And then substitute these parameters into Q to use for approximating alpha.
+    """
+    m = x.size
+
+    # There are 2n+1 parameters: a_j for j=0,...,n and b_j for j=1,...,n
+    N = 2*n+1
+    b_start = n+1
+    # Build the matrix needed
+    A = np.zeros((m, N))
+    for j in range(n+1):
+        A[:, j] = x**j
+    for j in range(1, n+1):
+        A[:, j+b_start-1] = y * x**j
+
+    params = least_squares(A, y)
+    Q = calc_Q(x, params)
+    return params, Q
+
+
+def calc_Q(omega, params):
+    """
+    Rational approximating function of the form
+    Q = [sum(a_j omega^j, 0, n)] / [1 + sum(b_j omega^j, 1, n)]
+    """
+
+    # Split the parameters
+    N = len(params)
+    n = int((N-1)/2)
+    a = params[:n+1]
+    # Add a zero as the first parameter of b, so only one for loop is needed.
+    b = np.array([0, *params[n+1:]])
+
+    # Create temp variables for the results.
+    num = np.zeros(omega.shape)
+    den = np.zeros(omega.shape)
+    for i in range(n+1):
+        num = num + a[i] * omega**i
+        den = den + b[i] * omega**i
+    result = num/(1 + den)
+    return result
