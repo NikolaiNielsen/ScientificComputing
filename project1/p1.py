@@ -86,17 +86,14 @@ def e2():
 
 
 def householder_test():
-    A = np.array([[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 1],
-                  [-1, 1, 0],
-                  [-1, 0, 1],
-                  [0, -1, 1]])
+    A = np.array([[1., 0, 0],
+                  [0., 1, 0],
+                  [0., 0, 1],
+                  [-1., 1, 0],
+                  [-1., 0, 1],
+                  [0., -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
-    Q, R, H_list = householder_QR(A)
-    for H in H_list:
-        A = H@A
-        print(A)
+    Q, R = householder_QR(A)
 
 if __name__ == "__main__":
     householder_test()
