@@ -105,8 +105,66 @@ def least_squares_test():
                   [0., -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
     x = least_squares(A, b)
-    print(x)
 
+
+def least_squares_P_test():
+    omega_p = 1.6
+    omega = np.linspace(1.2, 4, 1000)
+    omega = omega[omega < omega_p]
+    alpha = np.zeros(omega.shape)
+    for n in range(omega.size):
+        alpha[n] = solve_alpha(omega[n], E, S, z)
+
+    x1, P1 = least_squares_P(omega, alpha, 4)
+    x2, P2 = least_squares_P(omega, alpha, 6)
+    # fig, ax = plt.subplots()
+    # ax.plot(omega, alpha, label='alpha')
+    # ax.plot(omega, P1, label='n=4')
+    # ax.plot(omega, P2, label='n=6')
+    # ax.legend()
+
+    rel1 = np.abs((P1-alpha)/alpha)
+    rel2 = np.abs((P2-alpha)/alpha)
+
+    fig2, (ax2, ax3) = plt.subplots(ncols=2, figsize=(8, 4))
+    ax2.plot(omega, rel1, label='n=4')
+    ax2.plot(omega, rel2, label='n=6')
+    ax2.set_yscale('log')
+    ax2.set_xlabel(r'$\omega$')
+    ax2.set_ylabel(r'$\log_{10} |(P(\omega) - \alpha(\omega))/\alpha(\omega)|$')
+    ax2.legend()
+
+    ax3.plot(omega, np.floor(-np.log10(rel1)), label='n=4')
+    ax3.plot(omega, np.floor(-np.log10(rel2)), label='n=6')
+    ax3.legend()
+    ax3.set_xlabel(r'$\omega$')
+    ax3.set_ylabel(r'Number of significant digits of $P(\omega)$')
+    fig2.tight_layout()
+    fig2.savefig('g34.pdf')
+
+
+def Q_test():
+    omega = np.linspace(1.2, 4, 1000)
+    alpha = np.zeros(omega.shape)
+    for n in range(omega.size):
+        alpha[n] = solve_alpha(omega[n], E, S, z)
+
+    n = 2
+    # params, Q = least_squares_Q(omega, alpha, n)
+
+    params = [3, 2, 1, 0.5, 1]
+    x = np.linspace(0, 1)
+    Q = calc_Q(x, params)
+
+    Q2 = (params[0] + params[1]*x + params[2]*x**2)/(1 + params[3]*x +
+                                                     params[4]*x**2)
+    fig, ax = plt.subplots()
+    ax.plot(x, Q, label='func')
+    ax.plot(x, Q2, label='manual')
+    # ax.plot(omega, alpha)
+    # ax.plot(omega, Q)
+    ax.legend()
+    plt.show()
 
 if __name__ == "__main__":
-    least_squares_test()
+    Q_test()
