@@ -137,7 +137,7 @@ def householder_QR(A):
                 A[:, j] = A[:, j] - (2*gamma/beta) * v
 
     R = A
-    return Q, R
+    return Q, R, H_list
 
 
 def least_squares(A, b):

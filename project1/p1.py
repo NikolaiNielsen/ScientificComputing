@@ -93,8 +93,10 @@ def householder_test():
                   [-1, 0, 1],
                   [0, -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
-    Q, R = householder_QR(A)
-    print(R)
+    Q, R, H_list = householder_QR(A)
+    for H in H_list:
+        A = H@A
+        print(A)
 
 if __name__ == "__main__":
     householder_test()
