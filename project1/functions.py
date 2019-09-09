@@ -119,7 +119,6 @@ def householder_QR(A):
     Q = np.identity(m)
     # R = np.zeros(m, n)
     H_list = []
-
     for i in range(n):
         a = A[:, i]
         alpha = -a[i]/abs(a[i]) * np.sqrt(np.sum(a[i:]**2))
@@ -141,9 +140,12 @@ def householder_QR(A):
 
 def least_squares(A, b):
     """
-    Performs a least-squares fit for the rectangular system Ax=b.
+    Performs a least-squares fit for the rectangular system Ax=b, using
+    Householder QR-factorization and backsubstitution on the system Rx=c1
     """
     m, n = A.shape
-    x = np.zeros(n)
+    Q, R = householder_QR(A)
+    b = Q.T@b
+    x = back_substitute(R[:n], b[:n])
 
     return x
