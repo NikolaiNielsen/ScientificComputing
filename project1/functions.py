@@ -158,3 +158,19 @@ def least_squares(A, b):
     x = back_substitute(R[:n], b[:n])
 
     return x
+
+
+def least_squares_P(x, y, n):
+    """
+    Performs a least square fit to a polynomial: P=sum(a_j omega^(2j), 0, n)
+    """
+    # We run the sum from j=0 to n, so we have n+1 terms, and n+1 parameters
+    # (and n+1 columns in our matrix)
+    m = x.size
+
+    # Now we just create our matrix and solve the least squares problem
+    A = np.zeros((m, n+1))
+    for j in range(n+1):
+        A[:, j] = x**(2*j)
+    x = least_squares(A, y)
+    return x
