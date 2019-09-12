@@ -96,6 +96,7 @@
 			3.000 & -2.905$ \D 10^{-1} $ & -2.904 $ \D 10^{-1} $ & -2.902 $ \D 10^{-1} $ & 4.006 $ \D 10^{-4} $
 		\end{tabular}
 		\caption{Upper and lower bounds on $ \alpha(\omega) $.}
+		\label{tab:bounds}
 	\end{table}
 	
 	\subsection*{D2}
@@ -116,6 +117,88 @@
 		\text{cond}_{\infty} (\V{E}-\omega \V{S}) = 1.734 \D10^{10}
 	\end{equation}
 	meaning the matrix approaches non-singularity at this value.
+	
+	\subsection*{F1}
+	Implemented in code. To check that $ \V{Q}^T \V{Q} = \V{I} $ and $ \V{QR}=\V{A} $ I use \texttt{np.isclose(QR, A).all()} (and likewise for $ \V{Q}^T \V{Q}=\V{I} $). Both lines yield a true boolean.
+	
+	\subsection*{F2}
+	Implemented in code. We get
+	\begin{equation}\label{key}
+		\tilde{\V{x}} = \begin{bmatrix}
+		1236 \\ 1943 \\ 2416
+		\end{bmatrix}
+	\end{equation}
+	
+	\subsection*{G1}
+	Since $ \alpha(\omega) $ has a singularity around $ \omega \approx 1.60686978 $, and the polynomial cannot represent singularities, I pick $ \omega_p = 1.6 $. This yields 143 data points to use in fitting.
+	
+	\subsection*{G2}
+	For $ n=4 $ the parameters are
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c}
+		$ a_0 $ & $ a_1 $ & $ a_2 $ & $ a_3 $ & $ a_4 $ \\
+		\hline
+		-595.429 & 1010.84 & -633.747 & 171.610 & -16.6671
+	\end{tabular}
+	\end{table}
+	
+	\subsection*{G3}
+	For $ n=6 $ the parameters are
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c|c|c}
+			$ a_0 $ & $ a_1 $ & $ a_2 $ & $ a_3 $ & $ a_4 $ & $ a_5 $ & $ a_6 $ \\
+			\hline
+			-2303.24 & 3642.50 & -522.166 & -2305.73 & 1841.10 & -558.004 & 61.698
+		\end{tabular}
+	\end{table}
+	The relative absolute accuracies are plotted on the left in figure \ref{fig:error1}
+	
+	\subsection*{G4}
+	The amount of correct digits varies with $ \omega $, and is calculated with equation \ref{eq:sigfig}. The result is plotted on the right in figure \eqref{fig:error1}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{g34.pdf}
+		\caption{Left: Relative absolute error on the polynomial approximations of $ \alpha(\omega) $ in the range $ \omega \in [1.2, 1.6] $, with $ n\in \{4, 6\} $. Right: The number of correct significant digits in the approximations.}
+		\label{fig:error1}
+	\end{figure}
+	Of course one cannot have a negative number of correct significant digits - the proper formula should really be the maximum of equation \eqref{eq:sigfig} and 0.
+	
+	
+	\subsection*{H1}
+	To get the approximating function on a linear form we multiply by the denominator and rearrange so that we have all unknowns on one side of the equations:
+	\begin{equation}\label{key}
+		Q(\omega) = \sum_{j=0}^{n} a_j \omega^j - Q(\omega) \sum_{j=1}^{n} b_j \omega^j
+	\end{equation}
+	Next we use $ Q \approx \alpha $ (by assumption) and use linear least squares on this model to get the best parameters. We then plug this into the original expression for $ Q $ to use the approximating function. For $ n=2 $ we get the parameters
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c}
+			$ a_0 $ & $ a_1 $ & $ a_2 $ & $ b_1 $ & $ b_2 $ \\
+			\hline
+			0.73245626 & -0.56503326 & 0.06227827 & -1.48274436 & 0.53544673
+		\end{tabular}
+	\end{table}
+	The relative absolute error is plotted in blue on the left in figure \ref{fig:error2}, and the correct number of digits is plotted in blue on the right.
+	
+	\subsection*{H2}
+	For $ n=4 $ we get
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c|c|c|c|c}
+			$ a_0 $ & $ a_1 $ & $ a_2 $ & $ a_3 $ & $ a_4 $ & $ b_1 $ & $ b_2 $ & $ b_3 $ & $ b_4 $ \\
+			\hline
+			1.714026 & -2.848737 & 1.0675 & 0.04153 & -0.00592 & -1.67121 & -0.17905 & 1.37720 & -0.53492
+		\end{tabular}
+	\end{table}
+	The relative absolute error and number of correct digits is plotted in orange in figure \ref{fig:error2}.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{h.pdf}
+		\caption{Left: Relative absolute error on the rational approximations of $ \alpha(\omega) $ in the range $ \omega \in [1.2, 4] $, with $ n\in \{2, 4\} $. Right: The number of correct significant digits in the approximations.}
+		\label{fig:error2}
+	\end{figure}
 	
 	
 \end{document}
