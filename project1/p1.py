@@ -93,14 +93,12 @@ def f():
                   [0., -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
     Q, R = householder_QR(A)
-    identity = Q.T @ Q
-    print(A)
-    print(b)
+    id_ = Q.T @ Q
     x = least_squares(A, b)
 
     print('f:')
-    print(f'Max norm of (Q^T x Q): {calc_max_norm(identity)}')
-    print(f'Is A close to QR? np.isclose(A,QR)={np.isclose(A, Q@R).all()}')
+    print(f'np.islcose(Q^T Q,I)={np.isclose(id_, np.identity(b.size)).all()}')
+    print(f'np.isclose(A,QR)={np.isclose(A, Q@R).all()}')
     print(f'linear least square fit: x={x}')
 
 
@@ -176,5 +174,16 @@ def h():
     fig2.savefig('h.pdf')
 
 
-if __name__ == "__main__":
+def main():
+    a2()
+    b1()
+    c()
+    d1()
+    e1()
+    e2()
     f()
+    g()
+    h()
+
+if __name__ == "__main__":
+    main()
