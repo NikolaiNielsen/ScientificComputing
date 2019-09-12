@@ -97,7 +97,7 @@ def forward_error_bound(E, S, omega, domega=5e-4):
 
     M = E-omega*S
     cond = calc_cond(M)
-    num = np.linalg.norm(M, ord=np.inf)
+    num = calc_max_norm(M)
     # den = np.linalg.norm(domega*S, ord=np.inf)
     # Well, S is a diagonal matrix with unity elements (alternating signs,
     # though), so the max-norm is just the multiplier
@@ -140,9 +140,8 @@ def householder_QR(A):
         else:
             H = np.identity(m) - 2 * np.outer(v, v) / beta
             Q = H@Q
-            for j in range(i, n):
-                gamma = v.dot(A[:, j])
-                A[:, j] = A[:, j] - ((2*gamma/beta) * v)
+            gammaVec = v.dot(A[:, i:])
+            A[:, i:] = A[:, i:] - (2*np.outer(v, gammaVec)/beta)
     R = A
     return Q.T, R
 
