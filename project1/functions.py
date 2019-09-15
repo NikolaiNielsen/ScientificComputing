@@ -118,12 +118,12 @@ def solve_alpha(omega, E, S, z):
     return alpha
 
 
-def householder_QR(A):
+def householder_QR(A, inline=True):
     """
     Performs householder QR factorization on a rectangular (m,n) matrix, with
     m>n.
     """
-    A = A.copy()
+    A = A.copy() if not inline else A
     m, n = A.shape
     Q = np.identity(m)
     # R = np.zeros(m, n)

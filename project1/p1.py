@@ -92,7 +92,7 @@ def f():
                   [-1., 0, 1],
                   [0., -1, 1]])
     b = np.array((1237, 1941, 2417, 711, 1177, 475))
-    Q, R = householder_QR(A)
+    Q, R = householder_QR(A, inline=False)
     id_ = Q.T @ Q
     x = least_squares(A, b)
 
