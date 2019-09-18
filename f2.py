@@ -2,7 +2,7 @@ import numpy as np
 import f1
 
 
-def power_iteration(A, max_iter=25, rayleigh=False):
+def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, rayleigh=False):
     """
     Performs power iteration on the matrix A to find the extreme eigenvalue.
     Normalized. With option of using rayleigh quotient.
@@ -17,20 +17,20 @@ def power_iteration(A, max_iter=25, rayleigh=False):
         y = A@x
         return np.amax(y)
     else:
-        res = rayleigh_quotient(A, x)
+        res = rayleigh_qt(A, x)
         return res
 
 
-def gershgorin_disks(A):
+def gershgorin(A):
     """
     Calculates the Greshgorin discs for a given matrix
     """
     centers = np.diag(A)
-    row_sums = np.sum(np.abs(A), axis=1)-np.abs(centers)
-    return centers, row_sums
+    radii = np.sum(np.abs(A), axis=1)-np.abs(centers)
+    return centers, radii
 
 
-def rayleigh_quotient(A, x):
+def rayleigh_qt(A, x):
     """
     Computes the rayleigh quotient for a matrix and vector
     """
@@ -40,7 +40,7 @@ def rayleigh_quotient(A, x):
     return lambda_
 
 
-def rayleigh_quotient_iteration(A, max_iter=10):
+def rayleigh_iterate(A, max_iter=10):
     """
     Performs Rayleigh Quotient iteration
     """
@@ -48,8 +48,8 @@ def rayleigh_quotient_iteration(A, max_iter=10):
     x = np.random.uniform(size=n)
 
     for i in range(max_iter-1):
-        sigma = rayleigh_quotient(A, x)
+        sigma = rayleigh_qt(A, x)
         B = A-sigma*np.eye(n)
         y = f1.linsolve(B, x)
         x = y/np.amax(y)
-    return rayleigh_quotient(A, x)
+    return rayleigh_qt(A, x)
