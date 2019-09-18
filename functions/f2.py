@@ -1,7 +1,7 @@
 import numpy as np
 import sys
-sys.path.append("../project1/")
-import functions1 as p1
+sys.path.append("../functions/")
+import f1
 
 
 def power_iteration(A, max_iter=25, rayleigh=False):
@@ -52,6 +52,6 @@ def rayleigh_quotient_iteration(A, max_iter=10):
     for i in range(max_iter-1):
         sigma = rayleigh_quotient(A, x)
         B = A-sigma*np.eye(n)
-        y = p1.linsolve(B, x)
+        y = f1.linsolve(B, x)
         x = y/np.amax(y)
     return rayleigh_quotient(A, x)
