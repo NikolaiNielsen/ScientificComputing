@@ -4,21 +4,28 @@ import f1
 
 def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, rayleigh=False):
     """
-    Performs power iteration on the matrix A to find the extreme eigenvalue.
+    Performs power iteration on the matrix A to find the extreme eigenvector.
     Normalized. With option of using rayleigh quotient.
     """
     n, _ = A.shape
-    x = np.random.uniform(size=n)
+
+    # Choose random x0 if not given one
+    x = np.random.uniform(size=n) if x0 is None else x0
+
+    lambda_last = rayleigh_qt(A, x)
     for i in range(max_iter):
+        # Calculate next iteration
         y = A@x
         x = y / np.amax(y)
 
-    if not rayleigh:
-        y = A@x
-        return np.amax(y)
-    else:
-        res = rayleigh_qt(A, x)
-        return res
+        # Calculate approximate eigenvalue, check for convergence
+        lambda_new = rayleigh_qt(A, x)
+        res = abs((lambda_new-lambda_last)/(lambda_last))
+        if res <= epsilon:
+            break
+        lambda_last = lambda_new
+
+    return x, i+1
 
 
 def gershgorin(A):
