@@ -1,6 +1,6 @@
 import numpy as np
-from watermatrices import Amat, Bmat, yvec
-from functions1 import *
+from project1.watermatrices import Amat, Bmat, yvec
+from f1 import *
 import matplotlib.pyplot as plt
 
 E = np.vstack((np.hstack((Amat, Bmat)), np.hstack((Bmat, Amat))))
