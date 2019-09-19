@@ -1,5 +1,5 @@
 import numpy as np
-import f1
+from f1 import linsolve as lu_solve, least_squares as qr_solve
 
 
 def gershgorin(A):
@@ -50,13 +50,16 @@ def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, shift=0.):
     return x, i+1
 
 
-def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10):
+def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10,
+                     optimize=True):
     """
     Performs Rayleigh Quotient iteration
     """
     n, _ = A.shape
-    A = A - np.eye(n)*shift
     x = np.random.uniform(size=n) if x0 is None else x0
+
+    if optimize:
+        x, _ = inverse_interate(A, x0=x, shift=shift)
 
     # Calc approx eigenvalue and shift matrix
     sigma = rayleigh_qt(A, x)
@@ -64,7 +67,13 @@ def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10):
         B = A-sigma*np.eye(n)
 
         # Find new eigenvector
-        y = f1.linsolve(B, x)
+        # We try first with linsolve. then with QR if that doesn't work
+        # (singular)
+        try:
+            y = lu_solve(B, x)
+        except TypeError as e:
+            # Singular matrix
+            y = qr_solve(B, x)
         x = y/np.amax(y)
 
         # Test for convergence
@@ -74,3 +83,43 @@ def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10):
             break
         sigma = sigma_new
     return x, i+1
+
+
+def inverse_interate(A, x0=None, shift=0., epsilon=1e-6, max_iter=5):
+    n, _ = A.shape
+    B = A - np.eye(n)*shift
+    x = np.random.uniform(size=n) if x0 is None else x0
+    lambda_last = rayleigh_qt(A, x)
+
+    for i in range(max_iter):
+
+        # Find new eigenvector
+        try:
+            y = lu_solve(B, x)
+        except TypeError as e:
+            # Singular matrix
+            y = qr_solve(B, x)
+        x = y/np.amax(y)
+
+        # Test for convergence
+        lambda_new = rayleigh_qt(A, x)
+        res = abs((lambda_new-lambda_last)/(lambda_last))
+        if res <= epsilon:
+            break
+        lambda_new = lambda_last
+    return x, i+1
+
+
+def find_unique(a, rtol=1e-5, atol=1e-8):
+    """
+    Finds values of a that are approximately unique
+    """
+    unique = []
+
+    while len(a) > 1:
+        close_to = np.isclose(a[0], a, rtol, atol)
+        avg = np.mean(a[close_to])
+        unique.append(avg)
+        a = a[~close_to]
+
+    return unique
