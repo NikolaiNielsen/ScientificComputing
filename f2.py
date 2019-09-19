@@ -50,15 +50,14 @@ def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, shift=0.):
     return x, i+1
 
 
-def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10,
-                     optimize=True):
+def rayleigh_iterate(A, x0=None, shift=None, epsilon=1e-6, max_iter=10):
     """
     Performs Rayleigh Quotient iteration
     """
     n, _ = A.shape
     x = np.random.uniform(size=n) if x0 is None else x0
 
-    if optimize:
+    if shift is not None:
         x, _ = inverse_interate(A, x0=x, shift=shift)
 
     # Calc approx eigenvalue and shift matrix
@@ -67,13 +66,7 @@ def rayleigh_iterate(A, x0=None, shift=0., epsilon=1e-6, max_iter=10,
         B = A-sigma*np.eye(n)
 
         # Find new eigenvector
-        # We try first with linsolve. then with QR if that doesn't work
-        # (singular)
-        try:
-            y = lu_solve(B, x)
-        except TypeError as e:
-            # Singular matrix
-            y = qr_solve(B, x)
+        y = qr_solve(B, x)
         x = y/np.amax(y)
 
         # Test for convergence
