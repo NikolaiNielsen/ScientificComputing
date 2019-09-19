@@ -1,0 +1,53 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{Nikolai}
+\usepackage[margin=0.75in]{geometry}
+
+\title{Scientific Computing Project 2}
+\author{Nikolai Plambech Nielsen\\LPK331}
+\date{\today}
+
+
+\begin{document}
+	\maketitle
+	\section*{A}
+	The code is seen in file \texttt{f2.py}. Using the function on $ \textbf{K} $ gives the Gershgorin disks seen in table \ref{tab:disks}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c}
+			Center & Radius \\
+			\hline
+			
+		\end{tabular}
+	\caption{The Gershgorin disks for the matrix $ \textbf{K} $.}
+	\label{tab:disks}
+	\end{table}
+	
+	\section*{B}
+	The convergence criterion chosen for the power iteration is
+	\begin{equation}\label{key}
+		\text{abs}\pp{\frac{\lambda_{n} - \lambda_{n-1}}{\lambda_{n-1}}} < \varepsilon
+	\end{equation}
+	where by default $ \varepsilon = 1\D 10^{-6} $. The eigenvalues, number of iterations before convergence and the Rayleigh residual of the example matrices and $ \V{K} $ are tabulated below in table \ref{tab:power_iter}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c}
+			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
+			\hline
+			$ \textbf{A}_1 $ & & & \\
+			$ \textbf{A}_2 $ & & & \\
+			$ \textbf{A}_3 $ & & & \\
+			$ \textbf{A}_4 $ & & & \\
+			$ \textbf{A}_5 $ & & & \\
+			$ \textbf{A}_6 $ & & & \\
+			$ \V{K} $ & & &
+		\end{tabular}
+		\caption{Largest eigenvalue of the example matrices and $ \V{K} $, with Rayleigh residual and number of iterations until convergence shown.}
+		\label{tab:power_iter}
+	\end{table}
+	
+	\section*{C}
+	
+	
+	
+\end{document}
