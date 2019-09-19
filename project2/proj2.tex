@@ -28,7 +28,7 @@
 	\begin{equation}\label{key}
 		\text{abs}\pp{\frac{\lambda_{n} - \lambda_{n-1}}{\lambda_{n-1}}} < \varepsilon
 	\end{equation}
-	where by default $ \varepsilon = 1\D 10^{-6} $. The eigenvalues, number of iterations before convergence and the Rayleigh residual of the example matrices and $ \V{K} $ are tabulated below in table \ref{tab:power_iter}
+	where by default $ \varepsilon = 1\D 10^{-6} $, and the eigenvalue $ \lambda $ is calculated with the Rayleigh quotient. The eigenvalues, number of iterations before convergence and the Rayleigh residual of the example matrices and $ \V{K} $ are tabulated below in table \ref{tab:power_iter}
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{c|c|c|c}
@@ -42,11 +42,34 @@
 			$ \textbf{A}_6 $ & & & \\
 			$ \V{K} $ & & &
 		\end{tabular}
-		\caption{Largest eigenvalue of the example matrices and $ \V{K} $, with Rayleigh residual and number of iterations until convergence shown.}
+		\caption{Largest eigenvalue of the example matrices and $ \V{K} $ using power iteration, with Rayleigh residual and number of iterations until convergence shown.}
 		\label{tab:power_iter}
 	\end{table}
+	For each of the tables a random starting vector is chosen with \texttt{np.random.uniform}
 	
 	\section*{C}
+	The same convergence criterion is used for Rayleigh iteration as for power iteration. If we use the LU-solver for computing the solution, the method will not be robust for singular matrices. The shifts may make the matrix non-singular, allowing us to use the algorithm, but it probably should not be relied upon. As such we choose the QR-solver. The result are shown in table \ref{tab:rayleigh_iter}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c}
+			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
+			\hline
+			$ \textbf{A}_1 $ & & & \\
+			$ \textbf{A}_2 $ & & & \\
+			$ \textbf{A}_3 $ & & & \\
+			$ \textbf{A}_4 $ & & & \\
+			$ \textbf{A}_5 $ & & & \\
+			$ \textbf{A}_6 $ & & &
+		\end{tabular}
+		\caption{Largest eigenvalue of the example matrices using Rayleigh iteration, with Rayleigh residual and number of iterations until convergence also shown.}
+		\label{tab:rayleigh_iter}
+	\end{table}
+	
+	
+	\section*{D}
+	
+	
 	
 	
 	
