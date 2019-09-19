@@ -5,6 +5,7 @@ from project2.examplematrices import *
 K = np.load('project2/Chladni-Kmat.npy')
 mats = [A1, A2, A3, A4, A5, A6]
 eigenvals = [eigvals1, eigvals2, eigvals3, eigvals4, eigvals5, eigvals6]
+np.random.seed(42)
 
 
 def a():
@@ -41,7 +42,6 @@ def c():
         approx = rayleigh_qt(A, x)
         res = np.sqrt(np.sum((A@x - approx*x)**2))
         print(f'A{n+1} converged after {k} iterations')
-        # print(f'Eigenvector: {x}')
         print(f"Eigenvalue: {approx}")
         print(f'Residual: {res}')
         print()
@@ -49,6 +49,7 @@ def c():
 
 
 def d():
+    print("d: As many eigenvalues of K as possible")
     centers, radii = gershgorin(K)
     low = centers - radii
     high = centers + radii
@@ -68,10 +69,10 @@ def d():
 
 
 def main():
-    # a()
-    # b()
+    a()
+    b()
     c()
-    # d()
+    d()
 
 if __name__ == "__main__":
     main()
