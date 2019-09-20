@@ -5,7 +5,6 @@ from project2.examplematrices import *
 K = np.load('project2/Chladni-Kmat.npy')
 mats = [A1, A2, A3, A4, A5, A6]
 eigenvals = [eigvals1, eigvals2, eigvals3, eigvals4, eigvals5, eigvals6]
-np.random.seed(42)
 
 
 def a():
@@ -17,6 +16,7 @@ def a():
 
 
 def b():
+    np.random.seed(42)
     print("b3: Eigenvectors of example matrices")
     for n, (A, eigs) in enumerate(zip(mats, eigenvals)):
         x, k = power_iterate(A)
@@ -36,9 +36,10 @@ def b():
 
 
 def c():
+    np.random.seed(42)
     print('c2: Eigenvalues of example matrices')
     for n, (A, eigs) in enumerate(zip(mats, eigenvals)):
-        x, k = rayleigh_iterate(A, optimize=False)
+        x, k = rayleigh_iterate(A)
         approx = rayleigh_qt(A, x)
         res = np.sqrt(np.sum((A@x - approx*x)**2))
         print(f'A{n+1} converged after {k} iterations')
@@ -49,13 +50,16 @@ def c():
 
 
 def d():
+    np.random.seed(42)
     print("d: As many eigenvalues of K as possible")
     centers, radii = gershgorin(K)
     low = centers - radii
     high = centers + radii
+    print(low)
     eigs = []
     for n, (l, h, c) in enumerate(zip(low, high, centers)):
         x, k = rayleigh_iterate(K, shift=l)
+        print()
         eigs.append(rayleigh_qt(K, x))
         x, k = rayleigh_iterate(K, shift=h)
         eigs.append(rayleigh_qt(K, x))
@@ -68,6 +72,25 @@ def d():
     print(u)
 
 
+def d2():
+    np.random.seed(42)
+    print("d: As many eigenvalues of K as possible")
+    eigs = []
+    last_eig = 0
+    for i in range(30):
+        x, k = power_iterate(K, shift=last_eig)
+        last_eig = rayleigh_qt(K, x)
+        eigs.append(last_eig)
+    # print(eigs)
+    eigs = find_unique(np.array(eigs))
+    new_eigs = []
+    for eig in eigs:
+        x, k = rayleigh_iterate(K, shift=eig)
+        new_eigs.append(rayleigh_qt(K, x))
+    # print(new_eigs)
+    print(find_unique(np.array(new_eigs)))
+
+
 def main():
     a()
     b()
@@ -75,4 +98,5 @@ def main():
     d()
 
 if __name__ == "__main__":
-    main()
+    a()
+    d2()
