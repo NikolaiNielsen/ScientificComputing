@@ -23,7 +23,7 @@ def b():
         x, k = power_iterate(A)
         approx = rayleigh_qt(A, x)
         res = np.sqrt(np.sum((A@x - approx*x)**2))
-        print(f'A{n} converged after {k} iterations')
+        print(f'A{n+1} converged after {k} iterations')
         # print(f'Eigenvector: {x}')
         print(f"Eigenvalue: {approx}")
         print(f'Residual: {res}')
@@ -33,7 +33,10 @@ def b():
     print("b4: largest eigenvalue of K")
     x, k = power_iterate(K, epsilon=1e-9, max_iter=50)
     eig = rayleigh_qt(K, x)
+    res = np.sqrt(np.sum((K@x - eig*x)**2))
     print(f'eigenvalue: {eig}')
+    print(f'Residual: {res}')
+    print(f'iterations: {k}')
     print()
 
 
@@ -112,7 +115,7 @@ def d3():
 
     eigs = np.array(eigs)
     eigvs = np.array(eigvs)
-    print(eigvs.shape)
+    # print(eigvs.shape)
 
     unique = find_unique(eigs, eigvs)[::-1]
     print(unique)
@@ -122,7 +125,7 @@ def main():
     a()
     b()
     c()
-    d()
+    d3()
 
 if __name__ == "__main__":
-    b()
+    main()
