@@ -29,7 +29,7 @@ def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, shift=0.):
     n, _ = A.shape
 
     # Set shift, if needed
-    A = A - np.eye(n)*shift
+    B = A - np.eye(n)*shift
 
     # Choose random x0 if not given one
     x = np.random.uniform(size=n) if x0 is None else x0
@@ -37,7 +37,7 @@ def power_iterate(A, x0=None, max_iter=25, epsilon=1e-6, shift=0.):
     lambda_last = rayleigh_qt(A, x)
     for i in range(max_iter):
         # Calculate next iteration
-        y = A@x
+        y = B@x
         x = y / np.amax(y)
 
         # Calculate approximate eigenvalue, check for convergence
