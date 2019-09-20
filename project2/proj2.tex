@@ -17,7 +17,21 @@
 		\begin{tabular}{c|c}
 			Center & Radius \\
 			\hline
-			
+			22345.91813211761 & 90954.38918993676 \\
+			20970.291359471106 & 111324.65280062004\\
+			42687.082433334916 & 126764.0694086381\\
+			26259.27613697939 & 94137.99241796896\\
+			15959.10794172863 & 99958.28412923093\\
+			53149.927128462994 & 171091.65853598804\\
+			42173.70083943926 & 71865.46384544748\\
+			31276.609541102425 & 124290.7338304566\\
+			16126.984973178549 & 79552.99761063268\\
+			39042.18505838955 & 129453.08357102858\\
+			31503.391029932365 & 133585.4244613245\\
+			18523.82363971299 & 82107.1199063304\\
+			62872.789483587374 & 206937.40894591622\\
+			19011.945981070516 & 76188.8354648638\\
+			31881.247846857976 & 123877.63470683568
 		\end{tabular}
 	\caption{The Gershgorin disks for the matrix $ \textbf{K} $.}
 	\label{tab:disks}
@@ -34,13 +48,13 @@
 		\begin{tabular}{c|c|c|c}
 			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
 			\hline
-			$ \textbf{A}_1 $ & & & \\
-			$ \textbf{A}_2 $ & & & \\
-			$ \textbf{A}_3 $ & & & \\
-			$ \textbf{A}_4 $ & & & \\
-			$ \textbf{A}_5 $ & & & \\
-			$ \textbf{A}_6 $ & & & \\
-			$ \V{K} $ & & &
+			$ \textbf{A}_1 $ & 3.9999989184158142 & 0.0036011104009171287 & 10\\
+			$ \textbf{A}_2 $ & 3.9999987743348386 & 0.0022124632616849476 & 7\\
+			$ \textbf{A}_3 $ & 12.298959795018773 & 8.933595023604699e-06 & 14\\
+			$ \textbf{A}_4 $ & 16.116844235105 & 1.139976430233264e-06 & 6\\
+			$ \textbf{A}_5 $ & 68.64208108540393 & 1.2957189457185429e-06 & 6\\
+			$ \textbf{A}_6 $ & 1.9999994028072163 & 0.001144211257731418 & 4\\
+			$ \V{K} $ & 151362.6666519405 & 0.017048828321719074 & 30
 		\end{tabular}
 		\caption{Largest eigenvalue of the example matrices and $ \V{K} $ using power iteration, with Rayleigh residual and number of iterations until convergence shown.}
 		\label{tab:power_iter}
@@ -55,12 +69,12 @@
 		\begin{tabular}{c|c|c|c}
 			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
 			\hline
-			$ \textbf{A}_1 $ & & & \\
-			$ \textbf{A}_2 $ & & & \\
-			$ \textbf{A}_3 $ & & & \\
-			$ \textbf{A}_4 $ & & & \\
-			$ \textbf{A}_5 $ & & & \\
-			$ \textbf{A}_6 $ & & &
+			$ \textbf{A}_1 $ & 4.0 &1.4505701123219478e-09 & 3\\
+			$ \textbf{A}_2 $ & 4.0 &2.8805418676599316e-09 & 2\\
+			$ \textbf{A}_3 $ & 12.29895839097071 & 1.1234667099445444e-14 & 5\\
+			$ \textbf{A}_4 $ & 16.116843969809032 & 3.156822789041486e-11 & 4\\
+			$ \textbf{A}_5 $ & 68.64208073700239 & 1.7112135109858138e-13 & 10\\
+			$ \textbf{A}_6 $ & 2.0000000000000004 & 5.103831345936687e-11 & 2
 		\end{tabular}
 		\caption{Largest eigenvalue of the example matrices using Rayleigh iteration, with Rayleigh residual and number of iterations until convergence also shown.}
 		\label{tab:rayleigh_iter}
@@ -68,6 +82,7 @@
 	
 	
 	\section*{D}
+	To calculate multiple eigenvalues of $ \V{K} $ we need to use 
 	
 	
 	
