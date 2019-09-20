@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from f2 import *
 from project2.examplematrices import *
+from project2.chladni_show import show_nodes, show_waves
 K = np.load('project2/Chladni-Kmat.npy')
 mats = [A1, A2, A3, A4, A5, A6]
 eigenvals = [eigvals1, eigvals2, eigvals3, eigvals4, eigvals5, eigvals6]
@@ -30,8 +31,9 @@ def b():
     print()
 
     print("b4: largest eigenvalue of K")
-    x, k = power_iterate(K)
-    print(f'eigenvalue: {rayleigh_qt(K, x)}')
+    x, k = power_iterate(K, epsilon=1e-9, max_iter=50)
+    eig = rayleigh_qt(K, x)
+    print(f'eigenvalue: {eig}')
     print()
 
 
@@ -91,6 +93,31 @@ def d2():
     print(find_unique(np.array(new_eigs)))
 
 
+def d3():
+    np.random.seed(42)
+    print("D3, more eigenvalues!")
+
+    centers, radii = gershgorin(K)
+    lower = centers - radii
+    higher = centers + radii
+    eigs = []
+    eigvs = []
+    N = 10
+    for n, (l, h) in enumerate(zip(lower, higher)):
+        shifts = np.linspace(l, h, N)
+        for shift in shifts:
+            x, k = rayleigh_iterate(K, shift=shift)
+            eigs.append(rayleigh_qt(K, x))
+            eigvs.append(x)
+
+    eigs = np.array(eigs)
+    eigvs = np.array(eigvs)
+    print(eigvs.shape)
+
+    unique = find_unique(eigs, eigvs)[::-1]
+    print(unique)
+
+
 def main():
     a()
     b()
@@ -98,5 +125,4 @@ def main():
     d()
 
 if __name__ == "__main__":
-    a()
-    d2()
+    b()
