@@ -121,6 +121,34 @@ def d3():
     print(unique)
 
 
+def d4():
+    lambda_ = 151362.6666519405
+    centers, radii = gershgorin(K)
+    lower = centers - radii
+    higher = centers + radii
+    N = 10
+    shifts = np.linspace(lower, higher, num=N, axis=1)
+    shifts = np.sort(shifts.flatten())
+    shifts = shifts[(-lambda_ <= shifts) * (shifts <= lambda_)]
+    eigs = []
+    eigvecs = []
+    while len(shifts) > 0:
+        shift = shifts[0]
+        x, k = rayleigh_iterate(K, shift=shift)
+        new_eig = rayleigh_qt(K, x)
+        eigs.append(new_eig)
+        eigvecs.append(x)
+        shifts = shifts[(shifts > new_eig) * (shifts != shift)]
+
+    print(find_unique(eigs)[::-1])
+    fig, ax = plt.subplots()
+    ax.plot(shifts)
+    ax.axhline(lambda_)
+    ax.axhline(-lambda_)
+    fig.tight_layout()
+    plt.show()
+
+
 def main():
     a()
     b()
@@ -128,4 +156,4 @@ def main():
     d3()
 
 if __name__ == "__main__":
-    main()
+    d4()
