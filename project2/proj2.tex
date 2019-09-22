@@ -82,8 +82,9 @@
 	
 	
 	\section*{D}
-	To calculate multiple eigenvalues of $ \V{K} $ we need to use 
+	To calculate multiple eigenvalues of $ \V{K} $ we need to use one or more of the algorithms above several times, with different shifts. In general the Rayleigh iteration uses fewer iterations before convergence is achieved, so this is the employed algorithm. We further use 5 inverse iterations with a constant shift to hone in on a specific eigenvalue, to counteract the fluctuations introduced by using a random starting vector.
 	
+	Next we localize the eigenvalues of $ \V{K} $ as done in problem A, and create a list of, say, linearly spaced points for each of the intervals. Each of these 150 values are then used as a starting shift to generate a list 
 	
 	
 	
