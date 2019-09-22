@@ -103,17 +103,22 @@ def inverse_interate(A, x0=None, shift=0., epsilon=1e-6, max_iter=5):
     return x, i+1
 
 
-def find_unique(a, b, rtol=1e-5, atol=1e-8):
+def find_unique(a, b=None, rtol=1e-5, atol=1e-8):
     """
     Finds values of a that are approximately unique
     """
     unique = []
+    if isinstance(a, list):
+        a = np.array(a)
 
     while len(a) > 1:
         close_to = np.isclose(a[0], a, rtol, atol)
         avg = np.mean(a[close_to])
-        unique.append((avg, b[0]))
         a = a[~close_to]
-        b = b[~close_to]
+        if b is not None:
+            unique.append((avg, b[0]))
+            b = b[~close_to]
+        else:
+            unique.append(avg)
 
     return sorted(unique, reverse=True)
