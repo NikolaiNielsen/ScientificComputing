@@ -68,6 +68,30 @@ def secant(f, x0, x1, max_iter=100, epsilon=1e-6):
     return x
 
 
+def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
+    # Sort a, b and c
+    # a, b, c = sorted([a, b, c])
+    guesses = []
+    for i in range(max_iter):
+        fa = f(a)
+        fb = f(b)
+        fc = f(c)
+
+        u = fb/fc
+        v = fb/fa
+        w = fa/fc
+        p = v * (w * (u-w) * (c-b) - (1-u) * (b-a))
+        q = (w-1) * (u-1) * (v-1)
+
+        if abs(p/q) < epsilon:
+            break
+
+        a, b, c = b, b + p/q, a
+        guesses.append(b)
+
+    return guesses
+
+
 def q1():
     r1 = np.linspace(1.65, 10.0, num=500)
     r0 = 0
@@ -86,9 +110,11 @@ def q1():
 
     x2 = bisection(potential, 2, 4)
     x3 = secant(potential, 1.65, 2)[-1]
+    x4 = inverse_quadratic(potential, 1, 2, 3)[-1]
     print(x[-1])
     print(x2)
     print(x3)
+    print(x4)
     ax2.plot(x, fx, '-o')
     plt.show()
 
