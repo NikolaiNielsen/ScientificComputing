@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from f2 import *
-from project2.examplematrices import *
+from examplematrices import *
 from chladni_show import show_nodes, show_waves, \
     show_all_wavefunction_nodes
-K = np.load('project2/Chladni-Kmat.npy')
+K = np.load('Chladni-Kmat.npy')
 mats = [A1, A2, A3, A4, A5, A6]
 eigenvals = [eigvals1, eigvals2, eigvals3, eigvals4, eigvals5, eigvals6]
 
@@ -13,7 +13,7 @@ def a():
     print("a2: Centers and radii of matrix K")
     centers, radii = gershgorin(K)
     for c, r in zip(centers, radii):
-        print(c, r)
+        print(f"c: {c:.4f} - r: {r:.4f}")
     print()
 
 
@@ -97,25 +97,28 @@ def d2():
     print(find_unique(np.array(new_eigs)))
 
 
-def d3():
-    print("D3, more eigenvalues!")
+def d3(epsilon=1e-6):
+    print(f"D: more eigenvalues! epsilon={epsilon:.2e}")
     centers, radii = gershgorin(K)
     lower = centers - radii
     higher = centers + radii
     eigs = []
     eigvs = []
-    N = 10
-    for n, (l, h) in enumerate(zip(lower, higher)):
-        shifts = np.linspace(l, h, N)
+
+    for shifts in zip(lower, higher, centers):
         for shift in shifts:
-            x, k = rayleigh_iterate(K, shift=shift, epsilon=1e-10)
-            eigs.append(rayleigh_qt(K, x))
-            eigvs.append(x)
+            x, k = rayleigh_iterate(K, shift=shift, epsilon=epsilon)
+            if x is not None:
+                eigs.append(rayleigh_qt(K, x))
+                eigvs.append(x)
 
     eigs = np.array(eigs)
     eigvs = np.array(eigvs)
 
     unique = find_unique(eigs, eigvs)[::-1]
+    print("Unique eigenvalues of K:")
+    for u in unique:
+        print(f'{u[0]:.4f}')
 
     Lambda = np.zeros(15)
     U = np.zeros((15, 15))
@@ -123,14 +126,17 @@ def d3():
         Lambda[n] = u[0]
         # Remember to normalize according to 2-norm
         U[:, n] = u[1]/np.sqrt(np.sum(u[1]**2))
-
+    print()
     Lambda_real = np.linalg.inv(U) @ K @ U
     res = Lambda_real - np.diag(Lambda)
     Norm = np.max(np.sum(np.abs(res), axis=1))
 
     print("Max norm of the residual of Lambda:")
     print(Norm)
-    show_all_wavefunction_nodes(U, Lambda)
+
+    # We only want to show nodes if we are using a better than default epsilon
+    if epsilon < 1e-6:
+        show_all_wavefunction_nodes(U, Lambda)
 
 
 def main():
@@ -138,6 +144,7 @@ def main():
     b()
     c()
     d3()
+    d3(epsilon=1e-10)
 
 if __name__ == "__main__":
-    d3()
+    main()
