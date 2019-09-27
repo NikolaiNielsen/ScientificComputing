@@ -55,49 +55,7 @@ def c():
     print()
 
 
-def d():
-    np.random.seed(42)
-    print("d: As many eigenvalues of K as possible")
-    centers, radii = gershgorin(K)
-    low = centers - radii
-    high = centers + radii
-    print(low)
-    eigs = []
-    for n, (l, h, c) in enumerate(zip(low, high, centers)):
-        x, k = rayleigh_iterate(K, shift=l)
-        print()
-        eigs.append(rayleigh_qt(K, x))
-        x, k = rayleigh_iterate(K, shift=h)
-        eigs.append(rayleigh_qt(K, x))
-
-    eigs = np.array(eigs)
-    # fig, ax = plt.subplots()
-    # ax.scatter(np.arange(eigs.size), eigs)
-
-    u = find_unique(eigs)
-    print(u)
-
-
-def d2():
-    np.random.seed(42)
-    print("d: As many eigenvalues of K as possible")
-    eigs = []
-    last_eig = 0
-    for i in range(30):
-        x, k = power_iterate(K, shift=last_eig)
-        last_eig = rayleigh_qt(K, x)
-        eigs.append(last_eig)
-    # print(eigs)
-    eigs = find_unique(np.array(eigs))
-    new_eigs = []
-    for eig in eigs:
-        x, k = rayleigh_iterate(K, shift=eig)
-        new_eigs.append(rayleigh_qt(K, x))
-    # print(new_eigs)
-    print(find_unique(np.array(new_eigs)))
-
-
-def d3(epsilon=1e-6):
+def d(epsilon=1e-6):
     print(f"D: more eigenvalues! epsilon={epsilon:.2e}")
     centers, radii = gershgorin(K)
     lower = centers - radii
@@ -143,8 +101,8 @@ def main():
     a()
     b()
     c()
-    d3()
-    d3(epsilon=1e-10)
+    d()
+    d(epsilon=1e-10)
 
 if __name__ == "__main__":
     main()
