@@ -84,9 +84,62 @@
 	\section*{D}
 	To calculate multiple eigenvalues of $ \V{K} $ we need to use one or more of the algorithms above several times, with different shifts. In general the Rayleigh iteration uses fewer iterations before convergence is achieved, so this is the employed algorithm. We further use 5 inverse iterations with a constant shift to hone in on a specific eigenvalue, to counteract the fluctuations introduced by using a random starting vector.
 	
-	Next we localize the eigenvalues of $ \V{K} $ as done in problem A, and create a list of, say, linearly spaced points for each of the intervals. Each of these 150 values are then used as a starting shift to generate a list 
+	Next we localize the eigenvalues of $ \V{K} $ as done in problem A. For the first attempt at finding all eigenvalues, the start, middle and end of all intervals was used as starting shifts, but this yielded between 3 and 7 eigenvalues, depending on the seed.
+	
+	Due to this, we instead create 10 linearly spaced points for each of the intervals (the smallest value which would find 15 distinct eigenvalues consistently). Each of these 150 values are then used as a starting shift to generate a list of approximate eigenvalues and eigenvectors
+	
+	Then we just need to weed out the eigenvalues which are not unique, which should then give us all the eigenvalues with different values. The problem is that using strict numerical equality to evaluate uniqueness necessarily ignores any truncation error of the algorithm. To account for this we use the function \texttt{np.isclose} with a relative tolerance of $ 10^{-5} $ and an absolute tolerance of $ 10^{-8} $.
+	
+	The code (\texttt{find\_unique} in the file \texttt{f2.py}) runs a loop where the first entry is chosen, and used as the target of the isclose function. The ``true'' eigenvalue is then chosen as the arithmetic mean of all entries in the list, that are close to the target. This gives a value that, at most, differs by the absolute tolerance of the target used. All elements in the arithmetic mean are then discarded, and the process is repeated until there are no elements left in the list.
+	
+	Two considerations need to be taken when using this kind of algorithm: The relative and absolute tolerance. We need to make sure that the relative tolerance is larger than the convergence criterion. And we need to make sure that the absolute tolerance is large enough to make the algorithm not sensitive to permutations in the list:
+	
+	Say we have 3 eigenvalues in ascending order, each with a difference just smaller than the absolute tolerance, then the algorithm will return 2 different eigenvalues, whilst if the middle element is first, then only one eigenvalue is returned. The absolute tolerance thus needs to be large enough to accommodate this. An conservative estimate is to use the relative tolerance times the magnitude of the largest eigenvalue.
+	
+	Using this method we find the eigenvalues in table \ref{tab:K_eigs}:
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l}
+			Eigenvalues \\
+			\hline
+			13.892607255226826\\
+			86.88021641811008 \\
+			286.53330651449346\\
+			1132.2165680659618\\
+			1799.805890216019 \\
+			5560.881197518796 \\
+			11485.212833611125\\
+			13338.622299303433\\
+			22590.19851960052 \\
+			32779.07108357938 \\
+			36152.3699745374  \\
+			50430.02765418719 \\
+			52766.28875771519 \\
+			93999.61412883797 \\
+			151362.6664880097
+		\end{tabular}
+		\caption{Eigenvalues for the $ \V{K} $ matrix, found with a combination of inverse iteration and Rayleigh iteration.}
+		\label{tab:K_eigs}
+	\end{table}
+	
+	This is, of course, a highly inefficient method for finding distinct eigenvalues, since it necessitates computing many more eigenvalues than is actually needed. A better solution would be to implement some other algorithm which computes all eigenvalues simultaneously.
+	
+	Next we form the matrix $ \Vg{\Lambda}_1 = \V{U}\inverse \V{K} \V{U} $ and compare this to a proper diagonal matrix of the eigenvalues $ \Vg{\Lambda}_2 $ (using \texttt{np.diag} on a list of all the eigenvalues) by calculating the max-norm of the residual:
+	\begin{equation}\label{key}
+		|| \Vg{\Lambda}_1 - \Vg{\Lambda}_2 ||_{\infty} = 8.268 \D 10^{-11}
+	\end{equation}
+	Which means $ \Vg{\Lambda}_1 $ is not entirely diagonal - however, all non diagonal elements are on the order $ 10^{-11} $ or lower, attributable to truncation error in terminating the iterative algorithm and rounding error in the floating point arithmetic.
 	
 	
+	
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../nodes.pdf}
+		\caption{Nodes of all 15 wavefunctions.}
+		\label{fig:nodes}
+	\end{figure}
 	
 	
 \end{document}
