@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from f2 import *
 from project2.examplematrices import *
-from project2.chladni_show import show_nodes, show_waves
+from chladni_show import show_nodes, show_waves, \
+    show_all_wavefunction_nodes
 K = np.load('project2/Chladni-Kmat.npy')
 mats = [A1, A2, A3, A4, A5, A6]
 eigenvals = [eigvals1, eigvals2, eigvals3, eigvals4, eigvals5, eigvals6]
@@ -97,9 +98,7 @@ def d2():
 
 
 def d3():
-    np.random.seed(42)
     print("D3, more eigenvalues!")
-
     centers, radii = gershgorin(K)
     lower = centers - radii
     higher = centers + radii
@@ -109,44 +108,29 @@ def d3():
     for n, (l, h) in enumerate(zip(lower, higher)):
         shifts = np.linspace(l, h, N)
         for shift in shifts:
-            x, k = rayleigh_iterate(K, shift=shift)
+            x, k = rayleigh_iterate(K, shift=shift, epsilon=1e-10)
             eigs.append(rayleigh_qt(K, x))
             eigvs.append(x)
 
     eigs = np.array(eigs)
     eigvs = np.array(eigvs)
-    # print(eigvs.shape)
 
     unique = find_unique(eigs, eigvs)[::-1]
-    print(unique)
 
+    Lambda = np.zeros(15)
+    U = np.zeros((15, 15))
+    for n, u in enumerate(unique):
+        Lambda[n] = u[0]
+        # Remember to normalize according to 2-norm
+        U[:, n] = u[1]/np.sqrt(np.sum(u[1]**2))
 
-def d4():
-    lambda_ = 151362.6666519405
-    centers, radii = gershgorin(K)
-    lower = centers - radii
-    higher = centers + radii
-    N = 10
-    shifts = np.linspace(lower, higher, num=N, axis=1)
-    shifts = np.sort(shifts.flatten())
-    shifts = shifts[(-lambda_ <= shifts) * (shifts <= lambda_)]
-    eigs = []
-    eigvecs = []
-    while len(shifts) > 0:
-        shift = shifts[0]
-        x, k = rayleigh_iterate(K, shift=shift)
-        new_eig = rayleigh_qt(K, x)
-        eigs.append(new_eig)
-        eigvecs.append(x)
-        shifts = shifts[(shifts > new_eig) * (shifts != shift)]
+    Lambda_real = np.linalg.inv(U) @ K @ U
+    res = Lambda_real - np.diag(Lambda)
+    Norm = np.max(np.sum(np.abs(res), axis=1))
 
-    print(find_unique(eigs)[::-1])
-    fig, ax = plt.subplots()
-    ax.plot(shifts)
-    ax.axhline(lambda_)
-    ax.axhline(-lambda_)
-    fig.tight_layout()
-    plt.show()
+    print("Max norm of the residual of Lambda:")
+    print(Norm)
+    show_all_wavefunction_nodes(U, Lambda)
 
 
 def main():
@@ -156,4 +140,4 @@ def main():
     d3()
 
 if __name__ == "__main__":
-    d4()
+    d3()
