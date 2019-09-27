@@ -1,5 +1,60 @@
 import numpy as np
-from f1 import linsolve as lu_solve, least_squares as qr_solve
+
+
+def householder_QR(A, inline=True):
+    """
+    Performs householder QR factorization on a rectangular (m,n) matrix, with
+    m>n.
+    """
+    A = A.copy() if not inline else A
+    m, n = A.shape
+    Q = np.identity(m)
+    # R = np.zeros(m, n)
+    H_list = []
+    for i in range(n):
+        a = A[:, i]
+        alpha = -a[i]/abs(a[i]) * np.sqrt(np.sum(a[i:]**2))
+        v = np.zeros(m)
+        v[i:] = a[i:]
+        v[i] = v[i] - alpha
+        beta = v.dot(v)
+        if beta == 0:
+            continue
+        else:
+            H = np.identity(m) - 2 * np.outer(v, v) / beta
+            Q = H@Q
+            gammaVec = v.dot(A[:, i:])
+            A[:, i:] = A[:, i:] - (2*np.outer(v, gammaVec)/beta)
+    R = A
+    return Q.T, R
+
+
+def back_substitute(U, y):
+    """
+    Performs backwards substitution on the upper triangular system Ux=y to
+    solve for x. Does not assume a diagonal of U of 1.
+    """
+
+    # We could actually combine the forward and backwards substitution, if we
+    # define i -> -i for backward substitution, and run the loop in the
+    # "forward" direction.
+    x = np.zeros(y.shape)
+    for i in reversed(range(y.size)):
+        x[i] = (y[i] - U[i, i:].dot(x[i:]))/U[i, i]
+    return x
+
+
+def qr_solve(A, b):
+    """
+    Performs a least-squares fit for the rectangular system Ax=b, using
+    Householder QR-factorization and backsubstitution on the system Rx=c1
+    """
+    m, n = A.shape
+    Q, R = householder_QR(A)
+    b2 = Q.T@b
+    x = back_substitute(R[:n], b2[:n])
+
+    return x
 
 
 def gershgorin(A):
@@ -87,11 +142,7 @@ def inverse_interate(A, x0=None, shift=0., epsilon=1e-6, max_iter=5):
     for i in range(max_iter):
 
         # Find new eigenvector
-        try:
-            y = lu_solve(B, x)
-        except TypeError as e:
-            # Singular matrix
-            y = qr_solve(B, x)
+        y = qr_solve(B, x)
         x = y/np.amax(y)
 
         # Test for convergence
