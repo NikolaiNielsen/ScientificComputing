@@ -14,24 +14,24 @@
 	The code is seen in file \texttt{f2.py}. Using the function on $ \textbf{K} $ gives the Gershgorin disks seen in table \ref{tab:disks}
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{c|c}
+		\begin{tabular}{r|r}
 			Center & Radius \\
 			\hline
-			22345.91813211761 & 90954.38918993676 \\
-			20970.291359471106 & 111324.65280062004\\
-			42687.082433334916 & 126764.0694086381\\
-			26259.27613697939 & 94137.99241796896\\
-			15959.10794172863 & 99958.28412923093\\
-			53149.927128462994 & 171091.65853598804\\
-			42173.70083943926 & 71865.46384544748\\
-			31276.609541102425 & 124290.7338304566\\
-			16126.984973178549 & 79552.99761063268\\
-			39042.18505838955 & 129453.08357102858\\
-			31503.391029932365 & 133585.4244613245\\
-			18523.82363971299 & 82107.1199063304\\
-			62872.789483587374 & 206937.40894591622\\
-			19011.945981070516 & 76188.8354648638\\
-			31881.247846857976 & 123877.63470683568
+			129292.2192 & 42231.6467 \\
+			103041.4394 & 56927.5189 \\
+			64967.5787 & 31160.6709 \\
+			43612.4119 & 18532.3487 \\
+			36273.7515 & 7870.5161 \\
+			37990.0994 & 17854.7026 \\
+			24166.9711 & 15414.7167 \\
+			11651.1587 & 2512.0414 \\
+			13865.0805 & 5502.9695 \\
+			5600.5477 & 1195.2833 \\
+			1173.0388 & 341.9902 \\
+			1760.7714 & 401.2147 \\
+			288.4231 & 71.4173 \\
+			86.8969 & 2.5403 \\
+			13.8933 & 0.2591
 		\end{tabular}
 	\caption{The Gershgorin disks for the matrix $ \textbf{K} $.}
 	\label{tab:disks}
@@ -48,13 +48,13 @@
 		\begin{tabular}{c|c|c|c}
 			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
 			\hline
-			$ \textbf{A}_1 $ & 3.9999989184158142 & 0.0036011104009171287 & 10\\
-			$ \textbf{A}_2 $ & 3.9999987743348386 & 0.0022124632616849476 & 7\\
-			$ \textbf{A}_3 $ & 12.298959795018773 & 8.933595023604699e-06 & 14\\
-			$ \textbf{A}_4 $ & 16.116844235105 & 1.139976430233264e-06 & 6\\
-			$ \textbf{A}_5 $ & 68.64208108540393 & 1.2957189457185429e-06 & 6\\
-			$ \textbf{A}_6 $ & 1.9999994028072163 & 0.001144211257731418 & 4\\
-			$ \V{K} $ & 151362.6666519405 & 0.017048828321719074 & 30
+			$ \textbf{A}_1 $ &  3.999999 & 0.0036 & 10\\
+			$ \textbf{A}_2 $ &  3.999998 & 0.0022 & 7\\
+			$ \textbf{A}_3 $ & 12.298959 & $ 8.9 \D 10^{-6} $ & 14\\
+			$ \textbf{A}_4 $ & 16.116844 & $ 1.1 \D 10^{-6} $ & 6\\
+			$ \textbf{A}_5 $ & 68.642081 & $ 1.3\D10^-6 $ & 6\\
+			$ \textbf{A}_6 $ &  1.999999 & 0.0011 & 4\\
+			$ \V{K} $ & 151362.67 & 0.016 & 31
 		\end{tabular}
 		\caption{Largest eigenvalue of the example matrices and $ \V{K} $ using power iteration, with Rayleigh residual and number of iterations until convergence shown.}
 		\label{tab:power_iter}
@@ -69,12 +69,12 @@
 		\begin{tabular}{c|c|c|c}
 			Matrix & Eigenvalue & Rayleigh Residual & Iterations \\
 			\hline
-			$ \textbf{A}_1 $ & 4.0 &1.4505701123219478e-09 & 3\\
-			$ \textbf{A}_2 $ & 4.0 &2.8805418676599316e-09 & 2\\
-			$ \textbf{A}_3 $ & 12.29895839097071 & 1.1234667099445444e-14 & 5\\
-			$ \textbf{A}_4 $ & 16.116843969809032 & 3.156822789041486e-11 & 4\\
-			$ \textbf{A}_5 $ & 68.64208073700239 & 1.7112135109858138e-13 & 10\\
-			$ \textbf{A}_6 $ & 2.0000000000000004 & 5.103831345936687e-11 & 2
+			$ \textbf{A}_1 $ & 4.0 & $ 1.5 \D 10^{-9} $ & 3 \\
+			$ \textbf{A}_2 $ & 4.0 & $ 2.9 \D 10^{-9} $ & 2 \\
+			$ \textbf{A}_3 $ & 12.298958 & $ 1.2 \D 10^{-14} $ & 5 \\
+			$ \textbf{A}_4 $ & 16.116844 & $ 3.2 \D 10^{-11} $ & 4 \\
+			$ \textbf{A}_5 $ & 68.642081 & $ 1.7 \D 10^{-13} $ & 10 \\
+			$ \textbf{A}_6 $ &  2.000000 & $ 5.1 \D 10^{-12} $ & 2
 		\end{tabular}
 		\caption{Largest eigenvalue of the example matrices using Rayleigh iteration, with Rayleigh residual and number of iterations until convergence also shown.}
 		\label{tab:rayleigh_iter}
@@ -84,9 +84,7 @@
 	\section*{D}
 	To calculate multiple eigenvalues of $ \V{K} $ we need to use one or more of the algorithms above several times, with different shifts. In general the Rayleigh iteration uses fewer iterations before convergence is achieved, so this is the employed algorithm. We further use 5 inverse iterations with a constant shift to hone in on a specific eigenvalue, to counteract the fluctuations introduced by using a random starting vector.
 	
-	Next we localize the eigenvalues of $ \V{K} $ as done in problem A. For the first attempt at finding all eigenvalues, the start, middle and end of all intervals was used as starting shifts, but this yielded between 3 and 7 eigenvalues, depending on the seed.
-	
-	Due to this, we instead create 10 linearly spaced points for each of the intervals (the smallest value which would find 15 distinct eigenvalues consistently). Each of these 150 values are then used as a starting shift to generate a list of approximate eigenvalues and eigenvectors
+	Next we localize the eigenvalues of $ \V{K} $ as done in problem A. We use the ends and centre of each Gershgorin disc as shifts, yielding 44 eigenvalues. A single eigenvalue did not converge - using the first element of $ \V{K} $ as a shift means we perform QR-factorization on a matrix with a 0 in its first diagonal element. This yields a singular $ \V{R} $ matrix in the QR-factorization, stopping the backwards substitution.
 	
 	Then we just need to weed out the eigenvalues which are not unique, which should then give us all the eigenvalues with different values. The problem is that using strict numerical equality to evaluate uniqueness necessarily ignores any truncation error of the algorithm. To account for this we use the function \texttt{np.isclose} with a relative tolerance of $ 10^{-5} $ and an absolute tolerance of $ 10^{-8} $.
 	
@@ -103,21 +101,21 @@
 		\begin{tabular}{l}
 			Eigenvalues \\
 			\hline
-			13.892607255226826\\
-			86.88021641811008 \\
-			286.53330651449346\\
-			1132.2165680659618\\
-			1799.805890216019 \\
-			5560.881197518796 \\
-			11485.212833611125\\
-			13338.622299303433\\
-			22590.19851960052 \\
-			32779.07108357938 \\
-			36152.3699745374  \\
-			50430.02765418719 \\
-			52766.28875771519 \\
-			93999.61412883797 \\
-			151362.6664880097
+			13.8926     \\
+			86.8802     \\
+			286.5333    \\
+			1132.2166   \\
+			1799.8059   \\
+			5560.8812   \\
+			11485.2128  \\
+			13338.6223  \\
+			22590.1985  \\
+			32779.0711  \\
+			36152.3700  \\
+			50430.0277  \\
+			52766.2888  \\
+			93999.6141  \\
+			151362.6665
 		\end{tabular}
 		\caption{Eigenvalues for the $ \V{K} $ matrix, found with a combination of inverse iteration and Rayleigh iteration.}
 		\label{tab:K_eigs}
@@ -127,16 +125,20 @@
 	
 	Next we form the matrix $ \Vg{\Lambda}_1 = \V{U}\inverse \V{K} \V{U} $ and compare this to a proper diagonal matrix of the eigenvalues $ \Vg{\Lambda}_2 $ (using \texttt{np.diag} on a list of all the eigenvalues) by calculating the max-norm of the residual:
 	\begin{equation}\label{key}
-		|| \Vg{\Lambda}_1 - \Vg{\Lambda}_2 ||_{\infty} = 8.268 \D 10^{-11}
+		|| \Vg{\Lambda}_1 - \Vg{\Lambda}_2 ||_{\infty} = 1.587 \D 10^{-6}
 	\end{equation}
-	Which means $ \Vg{\Lambda}_1 $ is not entirely diagonal - however, all non diagonal elements are on the order $ 10^{-11} $ or lower, attributable to truncation error in terminating the iterative algorithm and rounding error in the floating point arithmetic.
+	Which means $ \Vg{\Lambda}_1 $ is not entirely diagonal. We note that the max norm is on the order of the stopping criteria parameter $ \epsilon $. Changing this to $ 10^{-10} $ and calculating the max norm again gives
+	\begin{equation}\label{key}
+	|| \Vg{\Lambda}_1 - \Vg{\Lambda}_2 ||_{\infty} = 1.658 \D 10^{-10}, \quad \epsilon=10^{-10}
+	\end{equation}
+	As such it seems the discrepancy between the two matrices is largely due to the truncation error introduced by stopping the iterative algorithm.
 	
-	
+	Lastly we use the \texttt{show\_all\_wavefunction\_nodes} function with the found eigenvectors and eigenvalues. The result is shown in \ref{fig:nodes}.
 	
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.9\linewidth]{../nodes.pdf}
+		\includegraphics[width=0.9\linewidth]{nodes.pdf}
 		\caption{Nodes of all 15 wavefunctions.}
 		\label{fig:nodes}
 	\end{figure}
