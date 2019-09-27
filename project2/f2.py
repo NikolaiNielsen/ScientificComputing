@@ -13,7 +13,7 @@ def householder_QR(A, inline=True):
     H_list = []
     for i in range(n):
         a = A[:, i]
-        alpha = -a[i]/abs(a[i]) * np.sqrt(np.sum(a[i:]**2))
+        alpha = -np.sign(a[i]) * np.sqrt(np.sum(a[i:]**2))
         v = np.zeros(m)
         v[i:] = a[i:]
         v[i] = v[i] - alpha
@@ -40,17 +40,20 @@ def back_substitute(U, y):
     # "forward" direction.
     x = np.zeros(y.shape)
     for i in reversed(range(y.size)):
+        if U[i, i] == 0:
+            # Return None if singular
+            return None
         x[i] = (y[i] - U[i, i:].dot(x[i:]))/U[i, i]
     return x
 
 
-def qr_solve(A, b):
+def qr_solve(A, b, inline=True):
     """
     Performs a least-squares fit for the rectangular system Ax=b, using
     Householder QR-factorization and backsubstitution on the system Rx=c1
     """
     m, n = A.shape
-    Q, R = householder_QR(A)
+    Q, R = householder_QR(A, inline=inline)
     b2 = Q.T@b
     x = back_substitute(R[:n], b2[:n])
 
@@ -114,6 +117,10 @@ def rayleigh_iterate(A, x0=None, shift=None, epsilon=1e-6, max_iter=10):
 
     if shift is not None:
         x, _ = inverse_interate(A, x0=x, shift=shift)
+        if x is None:
+            # As with inverse iteration - x is None if QR-factorization yielded
+            # a singular matrix.
+            return None, None
 
     # Calc approx eigenvalue and shift matrix
     sigma = rayleigh_qt(A, x)
@@ -140,9 +147,13 @@ def inverse_interate(A, x0=None, shift=0., epsilon=1e-6, max_iter=5):
     lambda_last = rayleigh_qt(A, x)
 
     for i in range(max_iter):
-
         # Find new eigenvector
-        y = qr_solve(B, x)
+        y = qr_solve(B, x, inline=False)
+
+        if y is None:
+            # y is none, if QR yielded a singular matrix. Return None
+            return None, None
+
         x = y/np.amax(y)
 
         # Test for convergence
