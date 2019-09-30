@@ -92,9 +92,11 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjugate_gradient(f, g, x0, h=1e-3, max_iter=100, epsilon=1e-6):
+def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
+                       max_iter=100, epsilon=1e-6):
     """
     Conjugate Gradient method for unconstrained optimization
+    Uses a numerical approximation to Newtons method for optimization.
 
     inputs:
     - f: objective function
@@ -103,39 +105,29 @@ def conjugate_gradient(f, g, x0, h=1e-3, max_iter=100, epsilon=1e-6):
     """
     g_last = g(x0)
     s = -g_last
-    print(s)
-    print(g_last)
     x_last = x0
     for k in range(max_iter):
-        def f_newton(alpha):
-            return f(x_last+alpha*s)
-
-        x_new = newton_gradient(f_newton, x_last, h=h)
-        print(x_new)
+        alpha = newton_gradient(f, 0.5, x_last, s, h)
+        x_new = x_last + alpha * s
         res = x_new-x_last
-        if np.sqrt(np.sum(res**2))/np.sqrt(np.sum(x_last**2)) < epsilon:
+        if np.sqrt(np.sum(res**2)) < epsilon:
             break
         x_last = x_new
         g_new = g(x_new)
         beta = g_new.dot(g_new) / g_last.dot(g_last)
         s = -g_new + beta * s
-    return x_new, k
+    return x_new, k+1
 
 
-def newton_gradient(f, x0, h=1e-3, max_iter=100, epsilon=1e-3):
-    x_last = x0
-    x_new = x0
+def newton_gradient(f, alpha, x0, s, h=1e-3, max_iter=100, epsilon=1e-3):
+    x_last = alpha
+    x_new = alpha
     for i in range(max_iter):
-        fx = f(x_last)
-        fminus = f(x_last-h)
-        fplus = f(x_last+h)
+        fx = f(x0 + x_last*s)
+        fminus = f(x0 + (x_last-h)*s)
+        fplus = f(x0 + (x_last+h)*s)
         x_new = x_last - 0.5*h*(fplus - fminus) / (fplus + fminus - 2*fx)
-        if isinstance(x_new, np.ndarray):
-            den = np.sqrt(np.sum((x_new- x_last)**2))
-            num = np.sqrt(np.sum(x_last**2))
-            res = abs(den/num)
-        else:
-            res = abs((x_new-x_last)/(x_last))
+        res = abs(x_new-x_last)
         if res <= epsilon:
             break
         x_last = x_new
@@ -177,7 +169,7 @@ def test_grad():
     def g(x): return x*np.array([1, 5])
 
     x0 = np.array([5, 1])
-    x = conjugate_gradient(f, g, x0, max_iter=10)
+    x = conjugate_gradient(f, g, x0)
     print(x)
 
 
