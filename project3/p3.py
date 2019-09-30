@@ -92,7 +92,7 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjucate_gradient(f, g, x0, max_iter=100, epsilon=1e-6):
+def conjugate_gradient(f, g, x0, h=1e-3, max_iter=100, epsilon=1e-6):
     """
     Conjugate Gradient method for unconstrained optimization
 
@@ -103,15 +103,17 @@ def conjucate_gradient(f, g, x0, max_iter=100, epsilon=1e-6):
     """
     g_last = g(x0)
     s = -g_last
+    print(s)
+    print(g_last)
     x_last = x0
     for k in range(max_iter):
         def f_newton(alpha):
             return f(x_last+alpha*s)
 
-        alpha = newton_gradient(f_newton, x_last)
-        x_new = x_last + alpha*s
+        x_new = newton_gradient(f_newton, x_last, h=h)
+        print(x_new)
         res = x_new-x_last
-        if np.sqrt(res**2) < epsilon:
+        if np.sqrt(np.sum(res**2))/np.sqrt(np.sum(x_last**2)) < epsilon:
             break
         x_last = x_new
         g_new = g(x_new)
@@ -120,19 +122,25 @@ def conjucate_gradient(f, g, x0, max_iter=100, epsilon=1e-6):
     return x_new, k
 
 
-def newton_gradient(f, x0, h=5e-2, max_iter=100, epsilon=1e-3):
-    x = [x0]
+def newton_gradient(f, x0, h=1e-3, max_iter=100, epsilon=1e-3):
+    x_last = x0
+    x_new = x0
     for i in range(max_iter):
-        fx = f(x[-1])
-        fminus = f(x[-1]-h)
-        fplus = f(x[-1]+h)
-        x_new = x[-1] - h*(fplus - fminus) / (fplus + fminus - 2*fx)
-        x.append(x_new)
-        res = abs((x[-1] - x[-2])/x[-2])
+        fx = f(x_last)
+        fminus = f(x_last-h)
+        fplus = f(x_last+h)
+        x_new = x_last - 0.5*h*(fplus - fminus) / (fplus + fminus - 2*fx)
+        if isinstance(x_new, np.ndarray):
+            den = np.sqrt(np.sum((x_new- x_last)**2))
+            num = np.sqrt(np.sum(x_last**2))
+            res = abs(den/num)
+        else:
+            res = abs((x_new-x_last)/(x_last))
         if res <= epsilon:
             break
+        x_last = x_new
 
-    return np.array(x)
+    return x_new
 
 
 def q1():
@@ -162,9 +170,20 @@ def q1():
     plt.show()
 
 
+def test_grad():
+    # def f(x): return 0.5 - x*np.exp(-x*x)
+    def f(x): return 0.5*x[0]**2 + 2.5*x[1]**2
+
+    def g(x): return x*np.array([1, 5])
+
+    x0 = np.array([5, 1])
+    x = conjugate_gradient(f, g, x0, max_iter=10)
+    print(x)
+
+
 def main():
     q1()
 
 
 if __name__ == "__main__":
-    main()
+    test_grad()
