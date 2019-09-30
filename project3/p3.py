@@ -92,6 +92,49 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
+def conjucate_gradient(f, g, x0, max_iter=100, epsilon=1e-6):
+    """
+    Conjugate Gradient method for unconstrained optimization
+
+    inputs:
+    - f: objective function
+    - g: gradient of f
+    - x0: initial guess
+    """
+    g_last = g(x0)
+    s = -g_last
+    x_last = x0
+    for k in range(max_iter):
+        def f_newton(alpha):
+            return f(x_last+alpha*s)
+
+        alpha = newton_gradient(f_newton, x_last)
+        x_new = x_last + alpha*s
+        res = x_new-x_last
+        if np.sqrt(res**2) < epsilon:
+            break
+        x_last = x_new
+        g_new = g(x_new)
+        beta = g_new.dot(g_new) / g_last.dot(g_last)
+        s = -g_new + beta * s
+    return x_new, k
+
+
+def newton_gradient(f, x0, h=5e-2, max_iter=100, epsilon=1e-3):
+    x = [x0]
+    for i in range(max_iter):
+        fx = f(x[-1])
+        fminus = f(x[-1]-h)
+        fplus = f(x[-1]+h)
+        x_new = x[-1] - h*(fplus - fminus) / (fplus + fminus - 2*fx)
+        x.append(x_new)
+        res = abs((x[-1] - x[-2])/x[-2])
+        if res <= epsilon:
+            break
+
+    return np.array(x)
+
+
 def q1():
     r1 = np.linspace(1.65, 10.0, num=500)
     r0 = 0
