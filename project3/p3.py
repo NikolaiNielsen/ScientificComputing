@@ -8,6 +8,7 @@ EPSILON = 0.997
 SIGMA = 3.401
 A = 4*EPSILON*SIGMA**12
 B = 4*EPSILON*SIGMA**6
+A, B = 1, 1
 
 
 def potential(r, r0=0):
@@ -39,7 +40,7 @@ def pot_grad(r, r0):
     R = r-r0
     R2 = np.sum(R**2, axis=0)
     factor = 12*A/(R2**7) - 6*B/(R2**4)
-    grad_per_atom = factor * R
+    grad_per_atom = - factor * R
     total_grad = grad_per_atom.sum(axis=1)
     return total_grad
 
@@ -110,8 +111,18 @@ def q3():
     # plt.show()
 
 
+def test_gradient():
+    r0 = np.array([[0, 0, 0.],
+                   [1., 0, 0]]).T
+    r = np.array([0.75, 0, 0])
+    print(pot_grad(r, r0))
+    def pot2(r):
+        return potentials(r, r0)
+    print(num_gradient(pot2, r))
+
+
 def main():
-    q3()
+    test_gradient()
 
 
 if __name__ == "__main__":
