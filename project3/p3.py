@@ -4,15 +4,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from f3 import *
 
 
-def show3d(data):
-    data.shape = 3, int(len(data) / 3)
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(data[0], data[1], data[2])
-    data.shape = data.size
-    return fig, ax
-
-
 EPSILON = 0.997
 SIGMA = 3.401
 A = 4*EPSILON*SIGMA**12
@@ -117,13 +108,6 @@ def q3():
     # ax.scatter(r0[0], r0[1], r0[2])
     # print(len(r))
     # plt.show()
-
-
-def test():
-    x = np.array((5, 1))
-    print(f(x))
-    grad = num_gradient(f, x)
-    print(grad)
 
 
 def main():
