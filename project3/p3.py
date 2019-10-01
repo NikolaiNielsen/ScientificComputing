@@ -19,9 +19,19 @@ B = 4*EPSILON*SIGMA**6
 
 
 def potential(r, r0=0):
+    d = r.shape[0]
+    r0 = r0.reshape((d, 1))
     R = r - r0
-    V = A/R**12 - B/R**6
+    R = np.sum(R**2, axis=0)
+    V = A/R**6 - B/R**3
     return V
+
+
+def potential3(r, r0):
+    x, y, z = r
+    x0, y0, z0 = r0
+    R = (x-x0)**2 + (y-y0)**2 + (z-z0)**2
+    V = A/R**6 - B/R**3
 
 
 def newton_raphson(f, x0, h=5e-2, max_iter=50, epsilon=1e-3):
@@ -162,15 +172,27 @@ def q1():
     plt.show()
 
 
-def test_grad():
-    # def f(x): return 0.5 - x*np.exp(-x*x)
-    def f(x): return 0.5*x[0]**2 + 2.5*x[1]**2
-
-    def g(x): return x*np.array([1, 5])
-
-    x0 = np.array([5, 1])
-    x = conjugate_gradient(f, g, x0)
-    print(x)
+def q3():
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    d = 1
+    spacing = 0.4
+    N = 100
+    lin = np.linspace(spacing, d-spacing, N)
+    x, y = np.meshgrid(lin, lin)
+    r = np.array((x.flatten(), y.flatten()))
+    r01 = np.array((0, 0))
+    r02 = np.array((d, 0))
+    r03 = np.array((0, d))
+    r04 = np.array((d, d))
+    p1 = potential(r, r01)
+    p2 = potential(r, r02)
+    p3 = potential(r, r03)
+    p4 = potential(r, r04)
+    pot = p1 + p2 + p3 + p4
+    pot = pot.reshape((N, N))
+    ax.plot_surface(x, y, pot)
+    plt.show()
 
 
 def main():
@@ -178,4 +200,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test_grad()
+    q3()
