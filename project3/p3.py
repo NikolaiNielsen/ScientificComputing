@@ -120,6 +120,7 @@ def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
     - x0: initial guess
     """
     g_last = num_gradient(f, x0, h)
+    print(g_last)
     s = -g_last
     x_last = x0
     x = [x0]
@@ -213,7 +214,7 @@ def q3():
     # ax.plot_surface(x, y, Fx)
 
     x_start = np.array((5, 1))
-    r = conjugate_gradient(f, x_start, h=1e-3)
+    r = conjugate_gradient(f, x_start, h=1e-3, max_iter=10)
     print(r)
     # plt.show()
     # r0 = data.T
