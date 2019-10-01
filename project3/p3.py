@@ -120,6 +120,7 @@ def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
     - x0: initial guess
     """
     g_last = num_gradient(f, x0, h)
+    print(x0)
     print(g_last)
     s = -g_last
     x_last = x0
@@ -129,7 +130,7 @@ def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
         x_new = x_last + alpha * s
         x.append(x_new)
         res = x_new-x_last
-        print(res)
+        # print(res)
         if np.sqrt(np.sum(res**2)) < epsilon:
             break
         x_last = x_new
@@ -200,7 +201,7 @@ def q1():
 def f(x):
     x = np.atleast_2d(x).T
     c = np.atleast_2d([0.5, 2.5]).T
-    res = c + x**2
+    res = c*x**2
     return np.sum(res, axis=0)
 
 
@@ -229,6 +230,13 @@ def q3():
     # ax.scatter(r0[0], r0[1], r0[2])
     # print(len(r))
     # plt.show()
+
+
+def test():
+    x = np.array((5, 1))
+    print(f(x))
+    grad = num_gradient(f, x)
+    print(grad)
 
 
 def main():
