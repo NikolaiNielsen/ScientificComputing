@@ -32,12 +32,24 @@ def potentials(r, r0):
     Assumes r is a (3,) array and r0 is a (3,n)-array.
     Outputs a scalar for the potential at point r
     """
-    r = r.reshape((3, 1))
+    n = r0.shape[0]
+    r = r.reshape((n, -1))
     R = r-r0
     R = np.sum(R**2, axis=0)
     V = A/R**6 - B/R**3
     V = np.sum(V)
     return V
+
+
+def pot_grad(r, r0):
+    n = r0.shape[0]
+    r = r.reshape((n, -1))
+    R = r-r0
+    R2 = np.sum(R**2, axis=0)
+    factor = 12*A/(R2**7) - 6*B/(R2**4)
+    grad_per_atom = factor * R
+    total_grad = grad_per_atom.sum(axis=1)
+    return total_grad
 
 
 def newton_raphson(f, x0, h=5e-2, max_iter=50, epsilon=1e-3):
@@ -120,8 +132,7 @@ def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
     - x0: initial guess
     """
     g_last = num_gradient(f, x0, h)
-    print(x0)
-    print(g_last)
+
     s = -g_last
     x_last = x0
     x = [x0]
@@ -205,24 +216,36 @@ def f(x):
     return np.sum(res, axis=0)
 
 
-def q3():
-    # np.random.seed(42)
-    # data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+def test_pot():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    lin = np.linspace(-3, 3)
+    r0 = np.array([[0, 0],
+                   [0, 1],
+                   [1, 0],
+                   [1, 1]]).T
+    d, spacing, N = 1, 0.1, 100
+    lin = np.linspace(spacing, d-spacing, N)
     x, y = np.meshgrid(lin, lin)
-    # Fx = f(np.array((x.flatten(), y.flatten()))).reshape((50, 50))
-    # ax.plot_surface(x, y, Fx)
+    r = np.array((x.flatten(), y.flatten()))
+    p = np.zeros(x.size)
+    for n, point in enumerate(r.T):
+        p[n] = potentials(point, r0)
+    # Fx = potentials(r, r0).reshape((N, N))
+    p = p.reshape((N, N))
+    ax.plot_surface(x, y, p)
+    plt.show()
 
-    x_start = np.array((5, 1))
-    r = conjugate_gradient(f, x_start, h=1e-3, max_iter=10)
-    print(r)
-    # plt.show()
-    # r0 = data.T
+
+def q3():
+    np.random.seed(42)
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    r0 = data.T
     # r_max = np.amax(r0, axis=1)
     # r_min = np.amin(r0, axis=1)
     # r_start = np.random.uniform(r_min, r_max)
+    r_start = np.array([0, 0.02, 0.02])
 
+    pot_grad(r_start, r0)
     # def potential_proper(r):
     #     return potentials(r, r0)
 
