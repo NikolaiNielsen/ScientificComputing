@@ -27,11 +27,17 @@ def potential(r, r0=0):
     return V
 
 
-def potential3(r, r0):
-    x, y, z = r
-    x0, y0, z0 = r0
-    R = (x-x0)**2 + (y-y0)**2 + (z-z0)**2
+def potentials(r, r0):
+    """
+    Assumes r is a (3,) array and r0 is a (3,n)-array.
+    Outputs a scalar for the potential at point r
+    """
+    r = r.reshape((3, 1))
+    R = r-r0
+    R = np.sum(R**2, axis=0)
     V = A/R**6 - B/R**3
+    V = np.sum(V)
+    return V
 
 
 def newton_raphson(f, x0, h=5e-2, max_iter=50, epsilon=1e-3):
@@ -116,9 +122,11 @@ def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
     g_last = g(x0)
     s = -g_last
     x_last = x0
+    x = [x0]
     for k in range(max_iter):
         alpha = newton_gradient(f, 0.5, x_last, s, h)
         x_new = x_last + alpha * s
+        x.append(x_new)
         res = x_new-x_last
         if np.sqrt(np.sum(res**2)) < epsilon:
             break
@@ -126,7 +134,7 @@ def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
         g_new = g(x_new)
         beta = g_new.dot(g_new) / g_last.dot(g_last)
         s = -g_new + beta * s
-    return x_new, k+1
+    return x
 
 
 def newton_gradient(f, alpha, x0, s, h=1e-3, max_iter=100, epsilon=1e-3):
@@ -143,6 +151,19 @@ def newton_gradient(f, alpha, x0, s, h=1e-3, max_iter=100, epsilon=1e-3):
         x_last = x_new
 
     return x_new
+
+
+def num_gradient(f, x, h=1e-4):
+    """
+    computes a numerical gradient of f(x) at the point x
+    """
+    grad = np.zeros(x.shape)
+    h_vec = h*np.eye(x.size)
+    for i in range(x.size):
+        xp = x+h_vec[i]
+        xm = x-h_vec[i]
+        grad[i] = (f(xp) - f(xm))/(2*h)
+    return grad
 
 
 def q1():
@@ -173,17 +194,15 @@ def q1():
 
 
 def q3():
+    np.random.seed(42)
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    d = 1
-    spacing = 0.4
-    N = 100
-    lin = np.linspace(spacing, d-spacing, N)
-    x, y = np.meshgrid(lin, lin)
-    r = np.random.uniform(0, 1, size=(3, 1000))
-    r01 = np.array((0, 0, 0))
-    p1 = potential(r, r01)
-    print(p1.shape)
+    r0 = data.T
+    r_max = np.amax(r0, axis=1)
+    r_min = np.amin(r0, axis=1)
+    r_start = np.random.uniform(r_min, r_max)
+    r = conjugate_gradient(potentials, )
+    ax.scatter(r0[0], r0[1], r0[2])
     plt.show()
 
 
@@ -192,4 +211,4 @@ def main():
 
 
 if __name__ == "__main__":
-    q3()
+    main()
