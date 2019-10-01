@@ -124,10 +124,11 @@ def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
     x_last = x0
     x = [x0]
     for k in range(max_iter):
-        alpha = newton_gradient(f, 0.5, x_last, s, h)
+        alpha = newton_gradient(f, alpha_0, x_last, s, h)
         x_new = x_last + alpha * s
         x.append(x_new)
         res = x_new-x_last
+        print(res)
         if np.sqrt(np.sum(res**2)) < epsilon:
             break
         x_last = x_new
@@ -162,7 +163,9 @@ def num_gradient(f, x, h=1e-4):
     for i in range(x.size):
         xp = x+h_vec[i]
         xm = x-h_vec[i]
-        grad[i] = (f(xp) - f(xm))/(2*h)
+        fp = f(xp)
+        fm = f(xm)
+        grad[i] = (fp - fm)/(2*h)
     return grad
 
 
@@ -193,22 +196,42 @@ def q1():
     plt.show()
 
 
+def f(x):
+    x = np.atleast_2d(x).T
+    c = np.atleast_2d([0.5, 2.5]).T
+    res = c + x**2
+    return np.sum(res, axis=0)
+
+
 def q3():
-    np.random.seed(42)
-    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    # np.random.seed(42)
+    # data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    r0 = data.T
-    r_max = np.amax(r0, axis=1)
-    r_min = np.amin(r0, axis=1)
-    r_start = np.random.uniform(r_min, r_max)
-    r = conjugate_gradient(f, r_start)
-    ax.scatter(r0[0], r0[1], r0[2])
-    print(r.shape)
-    plt.show()
+    lin = np.linspace(-3, 3)
+    x, y = np.meshgrid(lin, lin)
+    # Fx = f(np.array((x.flatten(), y.flatten()))).reshape((50, 50))
+    # ax.plot_surface(x, y, Fx)
+
+    x_start = np.array((5, 1))
+    r = conjugate_gradient(f, x_start, h=1e-3)
+    print(r)
+    # plt.show()
+    # r0 = data.T
+    # r_max = np.amax(r0, axis=1)
+    # r_min = np.amin(r0, axis=1)
+    # r_start = np.random.uniform(r_min, r_max)
+
+    # def potential_proper(r):
+    #     return potentials(r, r0)
+
+    # r = conjugate_gradient(potential_proper, r_start, alpha_0=0.01)
+    # ax.scatter(r0[0], r0[1], r0[2])
+    # print(len(r))
+    # plt.show()
 
 
 def main():
-    q1()
+    q3()
 
 
 if __name__ == "__main__":
