@@ -108,7 +108,7 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
+def conjugate_gradient(f, x0, alpha_0=0.5, h=1e-4,
                        max_iter=100, epsilon=1e-6):
     """
     Conjugate Gradient method for unconstrained optimization
@@ -119,7 +119,7 @@ def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
     - g: gradient of f
     - x0: initial guess
     """
-    g_last = g(x0)
+    g_last = num_gradient(f, x0, h)
     s = -g_last
     x_last = x0
     x = [x0]
@@ -131,7 +131,7 @@ def conjugate_gradient(f, g, x0, alpha_0=0.5, h=1e-3,
         if np.sqrt(np.sum(res**2)) < epsilon:
             break
         x_last = x_new
-        g_new = g(x_new)
+        g_new = num_gradient(f, x_new, h)
         beta = g_new.dot(g_new) / g_last.dot(g_last)
         s = -g_new + beta * s
     return x
@@ -201,8 +201,9 @@ def q3():
     r_max = np.amax(r0, axis=1)
     r_min = np.amin(r0, axis=1)
     r_start = np.random.uniform(r_min, r_max)
-    r = conjugate_gradient(potentials, )
+    r = conjugate_gradient(f, r_start)
     ax.scatter(r0[0], r0[1], r0[2])
+    print(r.shape)
     plt.show()
 
 
