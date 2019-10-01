@@ -180,18 +180,10 @@ def q3():
     N = 100
     lin = np.linspace(spacing, d-spacing, N)
     x, y = np.meshgrid(lin, lin)
-    r = np.array((x.flatten(), y.flatten()))
-    r01 = np.array((0, 0))
-    r02 = np.array((d, 0))
-    r03 = np.array((0, d))
-    r04 = np.array((d, d))
+    r = np.random.uniform(0, 1, size=(3, 1000))
+    r01 = np.array((0, 0, 0))
     p1 = potential(r, r01)
-    p2 = potential(r, r02)
-    p3 = potential(r, r03)
-    p4 = potential(r, r04)
-    pot = p1 + p2 + p3 + p4
-    pot = pot.reshape((N, N))
-    ax.plot_surface(x, y, pot)
+    print(p1.shape)
     plt.show()
 
 
