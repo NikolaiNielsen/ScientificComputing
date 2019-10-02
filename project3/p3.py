@@ -37,7 +37,7 @@ def get_gradient(r, h=1e-4, normalize=True):
     N = r.size//3
     grad = np.zeros(r.shape)
     for i in range(N):
-        remaining_atoms = r.copy()
+        r_copy = r.copy()
         x, y, z = r[i]
         variations = np.array([[x+h, y, z],
                                [x-h, y, z],
@@ -47,13 +47,12 @@ def get_gradient(r, h=1e-4, normalize=True):
                                [x, y, z-h]])
         varied_potentials = []
         for j in variations:
-            remaining_atoms[i] = j
-            varied_potentials.append(potential_total(remaining_atoms))
+            r_copy[i] = j
+            varied_potentials.append(potential_total(r_copy))
         dx = (varied_potentials[0] - varied_potentials[1])/(2*h)
         dy = (varied_potentials[2] - varied_potentials[3])/(2*h)
         dz = (varied_potentials[4] - varied_potentials[5])/(2*h)
         grad[i] = [dx, dy, dz]
-
     if normalize:
         grad = grad/abs(np.max(grad))
     return grad
@@ -88,11 +87,8 @@ def q1():
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    print(get_gradient(data, normalize=False))
-    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    # x = conjugate_gradient(potential_total, data, alpha_0=0.01, g=get_gradient,
-    #                        max_iter=10)
-    # print(x)
+    grad = get_gradient(data, normalize=False)
+    print(grad)
 
 
 def main():
