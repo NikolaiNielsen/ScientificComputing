@@ -8,8 +8,6 @@ EPSILON = 0.997
 SIGMA = 3.401
 A = 4*EPSILON*SIGMA**12
 B = 4*EPSILON*SIGMA**6
-A, B = 1, 1
-
 
 def potential(r, r0=0):
     d = r.shape[0]
@@ -96,12 +94,20 @@ def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     r0 = data.T
-    # r_max = np.amax(r0, axis=1)
-    # r_min = np.amin(r0, axis=1)
+    r_max = np.amax(r0, axis=1)
+    r_min = np.amin(r0, axis=1)
+    print(r_max)
+    print(r_min)
+    mean = np.mean(r0, axis=1)
+    print(mean)
     # r_start = np.random.uniform(r_min, r_max)
-    r_start = np.array([0, 0.02, 0.02])
+    r_start = np.array([0, 0.025, 0.025])
 
-    pot_grad(r_start, r0)
+    print(pot_grad(r_start, r0))
+
+    def pot2(r):
+        return potentials(r, r0)
+    print(num_gradient(pot2, r_start))
     # def potential_proper(r):
     #     return potentials(r, r0)
 
@@ -122,7 +128,7 @@ def test_gradient():
 
 
 def main():
-    test_gradient()
+    q3()
 
 
 if __name__ == "__main__":
