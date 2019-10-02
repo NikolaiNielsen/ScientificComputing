@@ -120,7 +120,7 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjugate_gradient(f, x0, g=None, alpha_0=0.5, h=1e-4,
+def conjugate_gradient(f, x0, g=None, h=1e-4,
                        max_iter=100, epsilon=1e-6):
     """
     Conjugate Gradient method for unconstrained optimization
@@ -131,16 +131,22 @@ def conjugate_gradient(f, x0, g=None, alpha_0=0.5, h=1e-4,
     - g: gradient of f
     - x0: initial guess
     """
+    def evaluator(alpha, args):
+        x0, s = args
+        return x0 + alpha*s
 
     if g is None:
         g = num_gradient
     g_last = g(f, x0, h)
 
+    alpha_min = 0
+    alpha_max = 1
+
     s = -g_last
     x_last = x0
     x = [x0]
     for k in range(max_iter):
-        alpha = newton_gradient(f, alpha_0, x_last, s, h)
+        alpha = gss(f, alpha_min, alpha_max, [evaluator, x_last, s])
         x_new = x_last + alpha * s
         x.append(x_new)
         res = x_new-x_last
