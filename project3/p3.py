@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial.distance import pdist
+from scipy.spatial.distance import pdist, cdist
 from f3 import *
 
 
@@ -37,7 +37,7 @@ def get_gradient(r, h=1e-4, normalize=True):
     N = r.size//3
     grad = np.zeros(r.shape)
     for i in range(N):
-        remaining_atoms = r[np.arange(N) != i]
+        remaining_atoms = r.copy()
         x, y, z = r[i]
         variations = np.array([[x+h, y, z],
                                [x-h, y, z],
@@ -45,9 +45,10 @@ def get_gradient(r, h=1e-4, normalize=True):
                                [x, y-h, z],
                                [x, y, z+h],
                                [x, y, z-h]])
-        variated_distances = cdist(remaining_atoms, variations,
-                                   metric='sqeuclidean')
-        varied_potentials = potential(variated_distances)
+        varied_potentials = []
+        for j in variations:
+            remaining_atoms[i] = j
+            varied_potentials.append(potential_total(remaining_atoms))
         dx = (varied_potentials[0] - varied_potentials[1])/(2*h)
         dy = (varied_potentials[2] - varied_potentials[3])/(2*h)
         dz = (varied_potentials[4] - varied_potentials[5])/(2*h)
@@ -87,7 +88,11 @@ def q1():
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    print(get_gradient(data, normalize=False))
+    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    # x = conjugate_gradient(potential_total, data, alpha_0=0.01, g=get_gradient,
+    #                        max_iter=10)
+    # print(x)
 
 
 def main():
