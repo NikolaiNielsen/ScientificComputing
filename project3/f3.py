@@ -80,6 +80,7 @@ def conjugate_gradient(f, x0, g=None, alpha_0=0.5, h=1e-4,
     - g: gradient of f
     - x0: initial guess
     """
+
     if g is None:
         g = num_gradient
     g_last = g(f, x0, h)
@@ -97,7 +98,9 @@ def conjugate_gradient(f, x0, g=None, alpha_0=0.5, h=1e-4,
             break
         x_last = x_new
         g_new = g(f, x_new, h)
-        beta = g_new.dot(g_new) / g_last.dot(g_last)
+        g_new_flat = g_new.flatten()
+        g_last_flat = g_last.flatten()
+        beta = g_new_flat.dot(g_new_flat) / g_last_flat.dot(g_last_flat)
         s = -g_new + beta * s
     return x
 
