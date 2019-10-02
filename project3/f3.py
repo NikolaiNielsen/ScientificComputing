@@ -1,6 +1,32 @@
 import numpy as np
 
 
+def gss(f, a, b, max_iter=50, epsilon=1e-6):
+    a, b = min(a, b), max(a, b)
+    tau = (np.sqrt(5)-1)/2
+    x1 = a + (1-tau)*(b-a)
+    f1 = f(x1)
+    x2 = a+tau*(b-a)
+    f2 = f(x2)
+    for i in range(max_iter):
+        if f1 > f1:
+            a = x1
+            x1 = x2
+            f1 = f2
+            x2 = a+tau*(b-a)
+            f2 = f(x2)
+        else:
+            b = x2
+            x2 = x1
+            f2 = f1
+            x1 = a+(1-tau)*(b-a)
+            f1 = f(x2)
+
+        if abs((b-a)) <= epsilon:
+            break
+    return (b+a)/2
+
+
 def newton_raphson(f, x0, h=5e-2, max_iter=50, epsilon=1e-3):
     x = [x0]
     for i in range(max_iter):
