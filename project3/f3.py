@@ -6,7 +6,7 @@ def gss(f, a, b, evaluator=None, max_iter=50, epsilon=1e-6):
     # Optional evaluator function, if f for example expects vector
     if evaluator is not None:
         ev = evaluator[0]
-        args = evaluator[0:]
+        args = evaluator[1:]
     else:
         def ev(x, *args):
             return x

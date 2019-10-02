@@ -91,9 +91,21 @@ def q3():
     print(grad)
 
 
+def test_gss():
+    def f(x): return 0.5*x[0]**2 + 2.5*x[1]**2
+
+    def evaluator(x, x0, s): return x0 + x*s
+
+    x0 = np.array((5, 1))
+    s = np.array((-5, -5))
+    a, b = 0, 1
+    min_ = gss(f, a, b, [evaluator, x0, s])
+    print(min_)
+
+
 def main():
     q3()
 
 
 if __name__ == "__main__":
-    main()
+    test_gss()
