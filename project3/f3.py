@@ -1,26 +1,35 @@
 import numpy as np
 
 
-def gss(f, a, b, max_iter=50, epsilon=1e-6):
+def gss(f, a, b, evaluator=None, max_iter=50, epsilon=1e-6):
+
+    # Optional evaluator function, if f for example expects vector
+    if evaluator is not None:
+        ev = evaluator[0]
+        args = evaluator[0:]
+    else:
+        def ev(x, *args):
+            return x
+        args = [None]
     a, b = min(a, b), max(a, b)
     tau = (np.sqrt(5)-1)/2
     x1 = a + (1-tau)*(b-a)
-    f1 = f(x1)
+    f1 = f(ev(x1, *args))
     x2 = a+tau*(b-a)
-    f2 = f(x2)
+    f2 = f(ev(x2, *args))
     for i in range(max_iter):
         if f1 > f2:
             a = x1
             x1 = x2
             f1 = f2
             x2 = a+tau*(b-a)
-            f2 = f(x2)
+            f2 = f(ev(x2, *args))
         else:
             b = x2
             x2 = x1
             f2 = f1
             x1 = a+(1-tau)*(b-a)
-            f1 = f(x1)
+            f1 = f(ev(x1, *args))
 
         if abs((b-a)) <= epsilon:
             break
