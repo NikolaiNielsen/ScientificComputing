@@ -2,46 +2,62 @@ import numpy as np
 
 
 def gss(f, a, b, evaluator=None, max_iter=50, epsilon=1e-6):
+    """
+    Golden section search for finding the minimum of a 1D unimodal function.
+    """
 
     # Optional evaluator function, if f for example expects vector
     if evaluator is not None:
         ev = evaluator[0]
         args = evaluator[1:]
     else:
-        def ev(x, *args):
+        def ev(x, args):
             return x
-        args = [None]
+        args = None
+
     a, b = min(a, b), max(a, b)
     tau = (np.sqrt(5)-1)/2
     x1 = a + (1-tau)*(b-a)
-    f1 = f(ev(x1, *args))
+    f1 = f(ev(x1, args))
     x2 = a+tau*(b-a)
-    f2 = f(ev(x2, *args))
+    f2 = f(ev(x2, args))
     for i in range(max_iter):
         if f1 > f2:
             a = x1
             x1 = x2
             f1 = f2
             x2 = a+tau*(b-a)
-            f2 = f(ev(x2, *args))
+            f2 = f(ev(x2, args))
         else:
             b = x2
             x2 = x1
             f2 = f1
             x1 = a+(1-tau)*(b-a)
-            f1 = f(ev(x1, *args))
+            f1 = f(ev(x1, args))
 
         if abs((b-a)) <= epsilon:
             break
     return (b+a)/2
 
 
-def newton_raphson(f, x0, h=5e-2, max_iter=50, epsilon=1e-3):
+def newton_raphson(f, x0, evaluator=None, h=5e-2, max_iter=50, epsilon=1e-3):
+    """
+    Newton Raphson method for 1D minimizing.
+    """
+    if evaluator is not None:
+        ev = evaluator[0]
+        args = evaluator[1:]
+    else:
+        def ev(x, args):
+            return x
+        args = None
+
     x = [x0]
+
     for i in range(max_iter):
-        fx = f(x[-1])
-        fminus = f(x[-1]-h)
-        fplus = f(x[-1]+h)
+        fx = f(ev(x[-1], args))
+        fminus = f(ev(x[-1]-h, args))
+        fplus = f(ev(x[-1]+h, args))
         diff = (fplus-fminus)/(2*h)
         x_new = x[-1] - fx/diff
         x.append(x_new)
