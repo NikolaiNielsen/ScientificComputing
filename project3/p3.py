@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial.distance import pdist
 from f3 import *
 
 
@@ -9,12 +10,23 @@ SIGMA = 3.401
 A = 4*EPSILON*SIGMA**12
 B = 4*EPSILON*SIGMA**6
 
+
 def potential(r, r0=0):
     d = r.shape[0]
     r0 = r0.reshape((d, 1))
     R = r - r0
     R = np.sum(R**2, axis=0)
     V = A/R**6 - B/R**3
+    return V
+
+
+def potential_total(r):
+    """
+    Calculates the total interatomic potential (assuming Lennard Jones
+    potential)
+    """
+    dist2 = pdist(r, metric='sqeuclidian')
+    V = np.sum(A/dist2**6 - B/dist2**3)
     return V
 
 
