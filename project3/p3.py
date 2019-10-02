@@ -11,48 +11,51 @@ A = 4*EPSILON*SIGMA**12
 B = 4*EPSILON*SIGMA**6
 
 
-def potential(r, r0=0):
-    d = r.shape[0]
-    r0 = r0.reshape((d, 1))
-    R = r - r0
-    R = np.sum(R**2, axis=0)
-    V = A/R**6 - B/R**3
+def potential(R2):
+    """
+    Calculates the total interatomic potential (assuming Lennard Jones
+    potential). Takes all interatomic distances squared as input.
+    """
+    V = np.sum(A/R2**6 - B/R2**3, axis=0)
     return V
 
 
 def potential_total(r):
     """
     Calculates the total interatomic potential (assuming Lennard Jones
-    potential)
+    potential). Takes all absolute coordinates as input
     """
-    dist2 = pdist(r, metric='sqeuclidian')
-    V = np.sum(A/dist2**6 - B/dist2**3)
+    R2 = pdist(r, metric='sqeuclidean')
+    V = np.sum(A/R2**6 - B/R2**3)
     return V
 
 
-def potentials(r, r0):
+def get_gradient(r, h=1e-4, normalize=True):
     """
-    Assumes r is a (3,) array and r0 is a (3,n)-array.
-    Outputs a scalar for the potential at point r
+    Calculates the gradient of V_total
     """
-    n = r0.shape[0]
-    r = r.reshape((n, -1))
-    R = r-r0
-    R = np.sum(R**2, axis=0)
-    V = A/R**6 - B/R**3
-    V = np.sum(V)
-    return V
+    N = r.size//3
+    grad = np.zeros(r.shape)
+    for i in range(N):
+        remaining_atoms = r[np.arange(N) != i]
+        x, y, z = r[i]
+        variations = np.array([[x+h, y, z],
+                               [x-h, y, z],
+                               [x, y+h, z],
+                               [x, y-h, z],
+                               [x, y, z+h],
+                               [x, y, z-h]])
+        variated_distances = cdist(remaining_atoms, variations,
+                                   metric='sqeuclidean')
+        varied_potentials = potential(variated_distances)
+        dx = (varied_potentials[0] - varied_potentials[1])/(2*h)
+        dy = (varied_potentials[2] - varied_potentials[3])/(2*h)
+        dz = (varied_potentials[4] - varied_potentials[5])/(2*h)
+        grad[i] = [dx, dy, dz]
 
-
-def pot_grad(r, r0):
-    n = r0.shape[0]
-    r = r.reshape((n, -1))
-    R = r-r0
-    R2 = np.sum(R**2, axis=0)
-    factor = 12*A/(R2**7) - 6*B/(R2**4)
-    grad_per_atom = - factor * R
-    total_grad = grad_per_atom.sum(axis=1)
-    return total_grad
+    if normalize:
+        grad = grad/abs(np.max(grad))
+    return grad
 
 
 def q1():
@@ -82,61 +85,9 @@ def q1():
     plt.show()
 
 
-def test_pot():
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    r0 = np.array([[0, 0],
-                   [0, 1],
-                   [1, 0],
-                   [1, 1]]).T
-    d, spacing, N = 1, 0.1, 100
-    lin = np.linspace(spacing, d-spacing, N)
-    x, y = np.meshgrid(lin, lin)
-    r = np.array((x.flatten(), y.flatten()))
-    p = np.zeros(x.size)
-    for n, point in enumerate(r.T):
-        p[n] = potentials(point, r0)
-    # Fx = potentials(r, r0).reshape((N, N))
-    p = p.reshape((N, N))
-    ax.plot_surface(x, y, p)
-    plt.show()
-
-
 def q3():
-    np.random.seed(42)
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    r0 = data.T
-    r_max = np.amax(r0, axis=1)
-    r_min = np.amin(r0, axis=1)
-    print(r_max)
-    print(r_min)
-    mean = np.mean(r0, axis=1)
-    print(mean)
-    # r_start = np.random.uniform(r_min, r_max)
-    r_start = np.array([0, 0.025, 0.025])
-
-    print(pot_grad(r_start, r0))
-
-    def pot2(r):
-        return potentials(r, r0)
-    print(num_gradient(pot2, r_start))
-    # def potential_proper(r):
-    #     return potentials(r, r0)
-
-    # r = conjugate_gradient(potential_proper, r_start, alpha_0=0.01)
-    # ax.scatter(r0[0], r0[1], r0[2])
-    # print(len(r))
-    # plt.show()
-
-
-def test_gradient():
-    r0 = np.array([[0, 0, 0.],
-                   [1., 0, 0]]).T
-    r = np.array([0.75, 0, 0])
-    print(pot_grad(r, r0))
-    def pot2(r):
-        return potentials(r, r0)
-    print(num_gradient(pot2, r))
 
 
 def main():
