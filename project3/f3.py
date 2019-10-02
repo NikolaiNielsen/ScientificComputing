@@ -9,7 +9,7 @@ def gss(f, a, b, max_iter=50, epsilon=1e-6):
     x2 = a+tau*(b-a)
     f2 = f(x2)
     for i in range(max_iter):
-        if f1 > f1:
+        if f1 > f2:
             a = x1
             x1 = x2
             f1 = f2
@@ -20,7 +20,7 @@ def gss(f, a, b, max_iter=50, epsilon=1e-6):
             x2 = x1
             f2 = f1
             x1 = a+(1-tau)*(b-a)
-            f1 = f(x2)
+            f1 = f(x1)
 
         if abs((b-a)) <= epsilon:
             break
