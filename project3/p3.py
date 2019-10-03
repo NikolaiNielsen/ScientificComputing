@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as anim
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import pdist, cdist
 from f3 import *
+from progress.bar import Bar
 
 
 EPSILON = 0.997
@@ -11,7 +13,7 @@ A = 4*EPSILON*SIGMA**12
 B = 4*EPSILON*SIGMA**6
 
 
-def potential(R2):
+def potential(R2, A=A, B=B):
     """
     Calculates the total interatomic potential (assuming Lennard Jones
     potential). Takes all interatomic distances squared as input.
@@ -20,7 +22,7 @@ def potential(R2):
     return V
 
 
-def potential_total(r):
+def potential_total(r, A=A, B=B):
     """
     Calculates the total interatomic potential (assuming Lennard Jones
     potential). Takes all absolute coordinates as input
@@ -30,7 +32,7 @@ def potential_total(r):
     return V
 
 
-def get_gradient(r, h=1e-4, normalize=True):
+def get_gradient(f, r, h=1e-4, normalize=True):
     """
     Calculates the gradient of V_total
     """
@@ -48,7 +50,7 @@ def get_gradient(r, h=1e-4, normalize=True):
         varied_potentials = []
         for j in variations:
             r_copy[i] = j
-            varied_potentials.append(potential_total(r_copy))
+            varied_potentials.append(f(r_copy))
         dx = (varied_potentials[0] - varied_potentials[1])/(2*h)
         dy = (varied_potentials[2] - varied_potentials[3])/(2*h)
         dz = (varied_potentials[4] - varied_potentials[5])/(2*h)
@@ -56,6 +58,24 @@ def get_gradient(r, h=1e-4, normalize=True):
     if normalize:
         grad = grad/abs(np.max(grad))
     return grad
+
+
+def test_gradient():
+    def pot(r):
+        return potential_total(r, 1, 1)
+
+    r = np.array([[0, 0, 0],
+                  [1, 0, 0],
+                  [0, 1, 0.]])
+
+    AnalyticGrad = np.array([[6, 6, 0],
+                             [-183/32, -9/32, 0],
+                             [-9/32, -183/32, 0]])
+
+    numericalGrad = get_gradient(pot, r, normalize=False)
+    res = AnalyticGrad - numericalGrad
+    print(numericalGrad)
+    print(res)
 
 
 def q1():
@@ -87,20 +107,32 @@ def q1():
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    grad = get_gradient(data, normalize=False)
-    print(grad)
+    x = conjugate_gradient(potential_total, data, g=get_gradient,
+                           max_iter=10000, epsilon=1e-3)
+    # N = len(x)
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    # ax = ax.flatten()
+    # # print(x[0]-data)
+    # for i in range(N):
+    #     ax[i].scatter(x[i].T[0], x[i].T[1], x[i].T[2])
 
+    # plt.show()
+    # writer = anim.FFMpegWriter(fps=60)
+    # bar = Bar('Writing movie', max=len(x))
 
-def test_gss():
-    def f(x): return 0.5*x[0]**2 + 2.5*x[1]**2
-
-    def evaluator(x, x0, s): return x0 + x*s
-
-    x0 = np.array((5, 1))
-    s = np.array((-5, -5))
-    a, b = 0, 1
-    min_ = gss(f, a, b, [evaluator, x0, s])
-    print(min_)
+    # dpi = 200
+    # outfile = 'movie.mp4'
+    # with writer.saving(fig, outfile, dpi):
+    #     for X in x:
+    #         X = X.T
+    #         ax.scatter(X[0], X[1], X[2])
+    #         writer.grab_frame()
+    #         ax.clear()
+    #         bar.next()
+    # bar.finish()
+    x = x[-1].T
+    ax.scatter(x[0], x[1], x[2])
+    plt.show()
 
 
 def main():
@@ -108,4 +140,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test_gss()
+    main()
