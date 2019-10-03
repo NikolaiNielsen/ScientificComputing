@@ -1,4 +1,5 @@
 import numpy as np
+from progress.bar import Bar
 
 
 def gss(f, a, b, evaluator=None, max_iter=50, epsilon=1e-6):
@@ -145,10 +146,14 @@ def conjugate_gradient(f, x0, g=None, h=1e-4,
     s = -g_last
     x_last = x0
     x = [x0]
+
+    bar = Bar("Simulating", max=max_iter)
     for k in range(max_iter):
         alpha = gss(f, alpha_min, alpha_max, [evaluator, x_last, s])
         x_new = x_last + alpha * s
         x.append(x_new)
+
+        bar.next()
         res = x_new-x_last
         # print(res)
         if np.sqrt(np.sum(res**2)) < epsilon:
@@ -159,7 +164,8 @@ def conjugate_gradient(f, x0, g=None, h=1e-4,
         g_last_flat = g_last.flatten()
         beta = g_new_flat.dot(g_new_flat) / g_last_flat.dot(g_last_flat)
         s = -g_new + beta * s
-    return x
+    bar.finish()
+    return x[:k+1]
 
 
 def newton_gradient(f, alpha, x0, s, h=1e-3, max_iter=100, epsilon=1e-3):
