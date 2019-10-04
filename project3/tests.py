@@ -75,7 +75,7 @@ def test_gss():
 
 def show_first_iterations():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    alpha_max = 0.1
+    alpha_max = 1e14
     x = conjugate_gradient(potential_total, data, g=get_gradient,
                            alpha_max=alpha_max,
                            max_iter=9, epsilon=1e-6)
@@ -87,27 +87,40 @@ def show_first_iterations():
         Ax.scatter(Xs[0], Xs[1], Xs[2])
         Ax.set_title(f'{n}')
     fig.suptitle(r'First iterations. $\alpha_{max}= $' + str(alpha_max))
+    fig.tight_layout()
     return fig, ax
 
 
 def show_line_search(Norm=True):
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     g = get_gradient(potential_total, data, normalize=Norm)
+    print(np.max(g))
     s = -g
     N = 10000
     n = 14
     alphas = np.logspace(1, 14, N)
-    f = np.zeros(N)
-    for n, alpha in enumerate(alphas):
-        f[n] = potential_total(data + alpha*s)
 
-    fig, ax = plt.subplots()
-    ax.plot(alphas, f)
-    ax.set_xscale('log')
-    ax.set_xlabel(r'$\alpha$')
-    ax.set_ylabel(r'$V_{tot}$')
-    ax.set_title('First linesearch')
-    return fig, ax
+    alphas2 = np.linspace(7e12, 1.5e13, N)
+    f = np.zeros(N)
+    f2 = np.zeros(N)
+    for n, (alpha, alpha2) in enumerate(zip(alphas, alphas2)):
+        f[n] = potential_total(data + alpha*s)
+        f2[n] = potential_total(data + alpha2*s)
+
+    fig, (ax1, ax2) = plt.subplots(nrows=2)
+    ax1.plot(alphas, f)
+    ax1.set_xscale('log')
+    ax1.set_xlabel(r'$\alpha$')
+    ax1.set_ylabel(r'$V_{tot}$')
+    ax1.set_title('First linesearch')
+
+    ax2.plot(alphas2, f2)
+    ax2.set_xlabel(r'$\alpha$')
+    ax2.set_ylabel(r'$V_{tot}$')
+    ax2.set_title('First linesearch')
+
+    fig.tight_layout()
+    return fig, (ax1, ax2)
 
 
 def main():
