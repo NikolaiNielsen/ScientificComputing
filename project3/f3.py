@@ -138,7 +138,7 @@ def conjugate_gradient(f, x0, g=None, h=1e-4, alpha_max=1,
 
     if g is None:
         g = num_gradient
-    g_last = g(f, x0, h)
+    g_last = g(x0)
 
     alpha_min = 0
     alpha_max = alpha_max
@@ -159,7 +159,7 @@ def conjugate_gradient(f, x0, g=None, h=1e-4, alpha_max=1,
         if np.sqrt(np.sum(res**2)) < epsilon:
             break
         x_last = x_new
-        g_new = g(f, x_new, h)
+        g_new = g(x0)
         g_new_flat = g_new.flatten()
         g_last_flat = g_last.flatten()
         beta = g_new_flat.dot(g_new_flat) / g_last_flat.dot(g_last_flat)
