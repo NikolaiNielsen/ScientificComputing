@@ -6,7 +6,7 @@ from scipy.spatial.distance import pdist, cdist
 from scipy.optimize import fmin_cg
 from f3 import *
 from progress.bar import Bar
-from p3 import get_gradient
+from p3 import get_gradient, gradient_total
 
 EPSILON = 0.997
 SIGMA = 3.401
@@ -50,10 +50,12 @@ def test_potential():
     AnalyticalPot = -7/64
 
     numericalGrad = get_gradient(pot, r, normalize=False)
-    res = AnalyticGrad - numericalGrad
+    analGrad = gradient_total(r, A=1, B=1, normalize=False)
+    res = AnalyticGrad - analGrad
 
     # print(f'Gradient: {numericalGrad}')
     print('Testing potential calculation and gradient')
+    print(analGrad)
     print(f'Gradient residual max norm: {np.max(np.sum(res, axis=1))}')
 
     # print(f'potential: {pot(r)}')
@@ -132,4 +134,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    test_potential()

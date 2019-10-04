@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import pdist, cdist
-from scipy.optimize import fmin_cg
+from scipy.optimize import fmin_cg, line_search
 from f3 import *
 from progress.bar import Bar
 
+
+np.seterr(all='raise')
 
 EPSILON = 0.997
 SIGMA = 3.401
@@ -35,6 +37,25 @@ def potential_total(r, A=A, B=B):
     return V
 
 
+def gradient_one_atom(r_other, x0, A=A, B=B):
+    R2 = cdist(r_other, x0.reshape((1, 3)), metric='sqeuclidean')
+    frac = - 12*A/R2**7 + 6*B/R2**4
+    coord_dists = x0 - r_other
+    grad = np.sum(coord_dists*frac, axis=0)
+    return grad
+
+
+def gradient_total(r, A=A, B=B, normalize=False):
+    grad = np.zeros(r.shape)
+    for n, atom in enumerate(r):
+        r_other = r[np.arange(r.shape[0]) != n]
+        grad[n] = gradient_one_atom(r_other, atom, A, B)
+
+    if normalize:
+        grad = grad/abs(np.max(grad))
+    return grad
+
+
 def get_gradient(f, r, h=1e-4, normalize=True):
     """
     Calculates the gradient of V_total
@@ -59,8 +80,15 @@ def get_gradient(f, r, h=1e-4, normalize=True):
         dz = (varied_potentials[4] - varied_potentials[5])/(2*h)
         grad[i] = [dx, dy, dz]
     if normalize:
-        grad = grad/abs(np.max(grad))
+        try:
+            grad = grad/(abs(np.max(grad)))
+        except FloatingPointError as e:
+            print(np.max(grad))
+            print(grad)
+            raise e
     return grad
+
+
 
 
 def q1():
@@ -92,10 +120,12 @@ def q1():
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    alpha_max = 1e15
     x = conjugate_gradient(potential_total, data, g=get_gradient,
-                           max_iter=1000, epsilon=1e-6)
+                           alpha_max=alpha_max,
+                           max_iter=9, epsilon=1e-6)
     # N = len(x)
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 
     # writer = anim.FFMpegWriter(fps=60)
     # bar = Bar('Writing movie', max=len(x))
@@ -110,10 +140,13 @@ def q3():
     #         ax.clear()
     #         bar.next()
     # bar.finish()
-    x = x[-1].T
-    ax.scatter(x[0], x[1], x[2])
-    print(potential_total(x))
-    plt.show()
+    x = x[-1]
+    grad = get_gradient(potential_total, x, normalize=False)
+    print(grad)
+
+
+    # ax.scatter(x[0], x[1], x[2])
+    # plt.show()
 
 
 def scipy_solution():
