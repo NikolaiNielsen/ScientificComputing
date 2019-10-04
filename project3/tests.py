@@ -77,8 +77,8 @@ def test_gss():
 
 def show_first_iterations():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    alpha_max = 1e14
-    x = conjugate_gradient(potential_total, data, g=get_gradient,
+    alpha_max = 1
+    x = conjugate_gradient(potential_total, data, g=gradient_total,
                            alpha_max=alpha_max,
                            max_iter=9, epsilon=1e-6)
 
@@ -134,4 +134,5 @@ def main():
 
 
 if __name__ == "__main__":
-    test_potential()
+    fig, ax = show_first_iterations()
+    plt.show()
