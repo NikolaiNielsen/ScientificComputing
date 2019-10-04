@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import pdist, cdist
+from scipy.optimize import fmin_cg
 from f3 import *
 from progress.bar import Bar
 
@@ -27,6 +28,8 @@ def potential_total(r, A=A, B=B):
     Calculates the total interatomic potential (assuming Lennard Jones
     potential). Takes all absolute coordinates as input
     """
+    if len(r.shape) == 1:
+        r = r.reshape((-1, 3))
     R2 = pdist(r, metric='sqeuclidean')
     V = np.sum(A/R2**6 - B/R2**3)
     return V
@@ -60,7 +63,7 @@ def get_gradient(f, r, h=1e-4, normalize=True):
     return grad
 
 
-def test_gradient():
+def test_potential():
     def pot(r):
         return potential_total(r, 1, 1)
 
@@ -72,10 +75,71 @@ def test_gradient():
                              [-183/32, -9/32, 0],
                              [-9/32, -183/32, 0]])
 
+    AnalyticalPot = -7/64
+
     numericalGrad = get_gradient(pot, r, normalize=False)
     res = AnalyticGrad - numericalGrad
-    print(numericalGrad)
-    print(res)
+
+    # print(f'Gradient: {numericalGrad}')
+    print('Testing potential calculation and gradient')
+    print(f'Gradient residual max norm: {np.max(np.sum(res, axis=1))}')
+
+    # print(f'potential: {pot(r)}')
+    print(f'Potential residual:  {pot(r)-AnalyticalPot}')
+
+
+def test_gss():
+    def f(x):
+        return 0.5 - x*np.exp(-x**2)
+
+    analytical_minimum = np.sqrt(2)/2
+    a, b = 0, 2
+    x = gss(f, a, b)
+
+    print('Testing GSS')
+    print(f'minimum:  {x}')
+    print(f'residual: {x-analytical_minimum}')
+
+
+def show_first_iterations():
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    alpha_max = 1e14
+    x = conjugate_gradient(potential_total, data, g=get_gradient,
+                           alpha_max=alpha_max,
+                           max_iter=9, epsilon=1e-6)
+
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), nrows=3, ncols=3)
+    ax = ax.flatten()
+    for n, (Ax, X) in enumerate(zip(ax, x)):
+        Xs = X.T
+        Ax.scatter(Xs[0], Xs[1], Xs[2])
+        Ax.set_title(f'{n}')
+    fig.suptitle(r'$\alpha_{max}= $' + str(alpha_max))
+    plt.show()
+
+
+def show_line_search(Norm=True):
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    # alpha_max = 1
+    # x = conjugate_gradient(potential_total, data, g=get_gradient,
+    #                        alpha_max=alpha_max,
+    #                        max_iter=9, epsilon=1e-6)
+    g = get_gradient(potential_total, data, normalize=Norm)
+    s = -g
+
+    N = 10000
+    n = 14
+    alphas = np.logspace(1, 14, N)
+    f = np.zeros(N)
+    for n, alpha in enumerate(alphas):
+        f[n] = potential_total(data + alpha*s)
+
+    fig, ax = plt.subplots()
+    ax.plot(alphas, f)
+    ax.set_xscale('log')
+    ax.set_xlabel(r'$\alpha$')
+    ax.set_ylabel(r'$V_{tot}$')
+    plt.show()
 
 
 def q1():
@@ -108,15 +172,10 @@ def q1():
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     x = conjugate_gradient(potential_total, data, g=get_gradient,
-                           max_iter=10000, epsilon=1e-3)
+                           max_iter=1000, epsilon=1e-6)
     # N = len(x)
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    # ax = ax.flatten()
-    # # print(x[0]-data)
-    # for i in range(N):
-    #     ax[i].scatter(x[i].T[0], x[i].T[1], x[i].T[2])
 
-    # plt.show()
     # writer = anim.FFMpegWriter(fps=60)
     # bar = Bar('Writing movie', max=len(x))
 
@@ -132,6 +191,16 @@ def q3():
     # bar.finish()
     x = x[-1].T
     ax.scatter(x[0], x[1], x[2])
+    print(potential_total(x))
+    plt.show()
+
+
+def scipy_solution():
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    result = fmin_cg(potential_total, data.flatten())
+    x = result.reshape((-1, 3)).T
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    ax.scatter(x[0], x[1], x[2])
     plt.show()
 
 
@@ -140,4 +209,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    test_potential()
+    test_gss()
