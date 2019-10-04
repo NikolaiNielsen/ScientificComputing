@@ -45,7 +45,7 @@ def gradient_one_atom(r_other, x0, A=A, B=B):
     return grad
 
 
-def gradient_total(r, A=A, B=B, normalize=False):
+def gradient_total(r, A=A, B=B, normalize=True):
     grad = np.zeros(r.shape)
     for n, atom in enumerate(r):
         r_other = r[np.arange(r.shape[0]) != n]
@@ -120,12 +120,12 @@ def q1():
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    alpha_max = 1e15
-    x = conjugate_gradient(potential_total, data, g=get_gradient,
+    alpha_max = 1
+    x = conjugate_gradient(potential_total, data, g=gradient_total,
                            alpha_max=alpha_max,
-                           max_iter=9, epsilon=1e-6)
+                           max_iter=200, epsilon=1e-6)
     # N = len(x)
-    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 
     # writer = anim.FFMpegWriter(fps=60)
     # bar = Bar('Writing movie', max=len(x))
@@ -140,21 +140,25 @@ def q3():
     #         ax.clear()
     #         bar.next()
     # bar.finish()
-    x = x[-1]
-    grad = get_gradient(potential_total, x, normalize=False)
+    x = x[-1].T
+    grad = gradient_total(x.T, normalize=False)
     print(grad)
 
-
-    # ax.scatter(x[0], x[1], x[2])
-    # plt.show()
+    ax.scatter(x[0], x[1], x[2])
+    plt.show()
 
 
 def scipy_solution():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    result = fmin_cg(potential_total, data.flatten())
-    x = result.reshape((-1, 3)).T
+    alliters = np.load('alliter.npy')
+    # result, alliters = fmin_cg(potential_total, data.flatten(), retall=True)
+    # np.save('alliter', alliters)
+    alliters = alliters.reshape((-1, 40, 3))
+    first = alliters[30].T
+
+    # x = result.reshape((-1, 3)).T
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.scatter(x[0], x[1], x[2])
+    ax.scatter(first[0], first[1], first[2])
     plt.show()
 
 
@@ -163,4 +167,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    scipy_solution()
