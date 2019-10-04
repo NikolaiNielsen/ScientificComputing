@@ -2,7 +2,7 @@ import numpy as np
 from progress.bar import Bar
 
 
-def gss(f, a, b, evaluator=None, max_iter=50, epsilon=1e-6):
+def gss(f, a, b, evaluator=None, max_iter=500, epsilon=1e-6):
     """
     Golden section search for finding the minimum of a 1D unimodal function.
     """
@@ -121,7 +121,7 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjugate_gradient(f, x0, g=None, h=1e-4,
+def conjugate_gradient(f, x0, g=None, h=1e-4, alpha_max=1,
                        max_iter=100, epsilon=1e-6):
     """
     Conjugate Gradient method for unconstrained optimization
@@ -141,7 +141,7 @@ def conjugate_gradient(f, x0, g=None, h=1e-4,
     g_last = g(f, x0, h)
 
     alpha_min = 0
-    alpha_max = 1
+    alpha_max = alpha_max
 
     s = -g_last
     x_last = x0
