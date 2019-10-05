@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import line_search
 from progress.bar import Bar
 
 
@@ -70,7 +71,18 @@ def newton_raphson(f, x0, evaluator=None, h=5e-2, max_iter=50, epsilon=1e-3):
 
 
 def bisection(f, a, b, epsilon=1e-6):
+    """
+    Bisection search for locating a root. Requires sign(f(a)) =/= sign(f(b))
+    """
     a, b = min(a, b), max(a, b)
+
+    # Test for whether convergence will happen
+    fa = f(a)
+    fb = f(b)
+    if fa/abs(fa) == fb/abs(fb):
+        return None
+
+    # Main algorithm
     while b-a > epsilon:
         m = a + (b-a)/2
         fa = f(a)
@@ -121,8 +133,8 @@ def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
     return guesses
 
 
-def conjugate_gradient(f, x0, g=None, h=1e-4, alpha_max=1,
-                       max_iter=100, epsilon=1e-6):
+def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
+                       max_iter=100, epsilon=1e-6, return_s=False):
     """
     Conjugate Gradient method for unconstrained optimization
     Uses a numerical approximation to Newtons method for optimization.
@@ -135,36 +147,45 @@ def conjugate_gradient(f, x0, g=None, h=1e-4, alpha_max=1,
     def evaluator(alpha, args):
         x0, s = args
         return x0 + alpha*s
-
     if g is None:
+        h = 1e-4
         g = num_gradient
     g_last = g(x0)
 
     alpha_min = 0
-    alpha_max = alpha_max
 
     s = -g_last
-    x_last = x0
     x = [x0]
+    ss = [s]
+    alphas = []
 
-    bar = Bar("Simulating", max=max_iter)
+    # bar = Bar("Simulating", max=max_iter)
     for k in range(max_iter):
-        alpha = gss(f, alpha_min, alpha_max, [evaluator, x_last, s])
-        x_new = x_last + alpha * s
-        x.append(x_new)
+        alpha = line_search(f, g2, x[-1].flatten(), ss[-1].flatten())[0]
 
-        bar.next()
-        res = x_new-x_last
-        # print(res)
-        if np.sqrt(np.sum(res**2)) < epsilon:
+        if alpha is None:
+            alpha = gss(f, alpha_min, alpha_max, [evaluator, x[-1], ss[-1]])
+        alphas.append(alpha)
+        print(alpha)
+        x_new = x[-1] + alpha * ss[-1]
+        x.append(x_new)
+        # bar.next()
+        res = x[-1] - x[-2]
+        if np.sum(np.sqrt(np.sum(res**2))) < epsilon:
             break
-        x_last = x_new
-        g_new = g(x0)
-        g_new_flat = g_new.flatten()
-        g_last_flat = g_last.flatten()
-        beta = g_new_flat.dot(g_new_flat) / g_last_flat.dot(g_last_flat)
-        s = -g_new + beta * s
-    bar.finish()
+
+        G = g(x[-1])
+        if k+1 % n_restart:
+            beta = 0
+        else:
+            beta = G.flatten().dot(G.flatten()) / \
+                (ss[-1].flatten().dot(ss[-1].flatten()))
+
+        s = -G + beta*ss[-1]
+        ss.append(s)
+    # bar.finish()
+    if return_s:
+        return x[:k+1], ss[:k+1]
     return x[:k+1]
 
 
