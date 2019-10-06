@@ -7,6 +7,7 @@ from scipy.optimize import fmin_cg, line_search
 from f3 import *
 from progress.bar import Bar
 import timeit
+import time
 
 EPSILON = 0.997
 SIGMA = 3.401
@@ -78,7 +79,6 @@ def anneal(f, x0, neighbour=neighbour, neigharg=1, NT=100, Nf=100, target=1e-3,
     # Scaling factor for T, chosen to temperature is changed NT times
     alpha = (T_min/T)**(1/NT)
 
-    bar = Bar('Annealing', max=NT)
     while T > T_min:
         # For each temperature we test Nf neighbours.
         for _ in range(Nf):
@@ -96,20 +96,21 @@ def anneal(f, x0, neighbour=neighbour, neigharg=1, NT=100, Nf=100, target=1e-3,
 
         # Decrease temperature
         T = T * alpha
-        bar.next()
 
         if cost <= target:
             break
-    bar.finish()
-    return x, costs
+    return xs, costs
 
 
 def setup():
     np.random.seed(42)
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     data = data.flatten()
-    x, costs = anneal(potential_total, data, tol=-50, NT=10000,
+    t0 = time.time()
+    x, costs = anneal(potential_total, data, target=0, NT=10000,
                       neighbour=neighbour, neigharg=0.2)
+    t1 = time.time()
+    totT = t1-t0
     x = x[-1].reshape((-1, 3))
     costs = np.abs(np.array(costs))
 
@@ -119,7 +120,7 @@ def setup():
     fig2, ax2 = plt.subplots()
     ax2.plot(costs)
     ax2.set_yscale('log')
-    print(costs[-1])
+    print(f"Minimum potential {costs[-1]:.3e} found in {totT:.3e} seconds.")
     plt.show()
 
 
