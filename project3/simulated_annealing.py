@@ -41,6 +41,8 @@ def potential_total(r, A=A, B=B):
 
 
 def neighbour(x, stepsize=1):
+    # Pick a random parameter, and add a random amount (uniform) centred around
+    # 0, with size stepsize.
     choice = np.random.randint(x.size)
     x[choice] += np.random.uniform(-stepsize/2, stepsize/2)
     return x
@@ -52,46 +54,63 @@ def neighbour_gauss(x, stepsize=1):
     return x
 
 
-def acceptance_probability(old, new, T):
-    return np.exp((-new+old)/T)
+def anneal(f, x0, neighbour=neighbour, neigharg=1, NT=100, Nf=100, target=1e-3,
+           minimize=True):
 
+    if not minimize:
+        # If we wanna maximize, we just change the sign of the cost function
+        # and target.
+        def neigh(x, arg):
+            return -neighbour(x, arg)
+        target = -target
+    else:
+        neigh = neighbour
 
-def anneal(f, x0, neighbour=neighbour, NT=100, Nf=100, tol=1e-3):
-    x_last = x0
-    cost_last = f(x_last)
-    costs = [cost_last]
+    # Set up starting parameters
+    x = x0
+    cost = f(x)
+    xs = [x]
+    costs = [cost]
+
+    # Initial temperature and final temperature
     T = 1.0
     T_min = 1e-5
+    # Scaling factor for T, chosen to temperature is changed NT times
     alpha = (T_min/T)**(1/NT)
+
     bar = Bar('Annealing', max=NT)
     while T > T_min:
-        for _ in range(100):
-            x_new = neighbour(x_last)
+        # For each temperature we test Nf neighbours.
+        for _ in range(Nf):
+            x_new = neigh(x, neigharg)
             cost_new = f(x_new)
-            ap = acceptance_probability(cost_last, cost_new, T)
+
+            # if cost_new is better than cost, it is automatically accepted,
+            # since ap >= 1
+            ap = np.exp((cost-cost_new)/T)
             if ap > np.random.uniform():
-                x_last = x_new
-                cost_last = cost_new
-                costs.append(cost_last)
+                x = x_new
+                cost = cost_new
+                costs.append(cost)
+                xs.append(x)
+
+        # Decrease temperature
         T = T * alpha
         bar.next()
-        if cost_last <= tol:
+
+        if cost <= target:
             break
     bar.finish()
-    return x_last, costs
-
-
-def costFunc(r):
-    return potential_total(r)
+    return x, costs
 
 
 def setup():
     np.random.seed(42)
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     data = data.flatten()
-    x, costs = anneal(costFunc, data, tol=-50, NT=10000,
-                      neighbour=neighbour)
-    x = x.reshape((-1, 3))
+    x, costs = anneal(potential_total, data, tol=-50, NT=10000,
+                      neighbour=neighbour, neigharg=0.2)
+    x = x[-1].reshape((-1, 3))
     costs = np.abs(np.array(costs))
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
