@@ -113,15 +113,20 @@ def setup():
     totT = t1-t0
     x = x[-1].reshape((-1, 3))
     costs = np.abs(np.array(costs))
+    print(f"Minimum potential {costs[-1]:.3e} found in {totT:.3e} seconds.")
 
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.scatter(x.T[0], x.T[1], x.T[2])
-
-    fig2, ax2 = plt.subplots()
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211, projection='3d')
+    ax2 = fig.add_subplot(212)
+    ax1.scatter(x.T[0], x.T[1], x.T[2])
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('y')
+    ax1.set_zlabel('z')
     ax2.plot(costs)
     ax2.set_yscale('log')
-    print(f"Minimum potential {costs[-1]:.3e} found in {totT:.3e} seconds.")
-    plt.show()
+    ax2.set_xlabel('Iteration number')
+    ax2.set_ylabel('$V_{tot}$')
+    fig.savefig("q4fig.pdf")
 
 
 def main():
