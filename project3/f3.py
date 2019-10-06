@@ -9,6 +9,7 @@ def gss(f, a, b, evaluator=None, max_iter=500, epsilon=1e-6):
     """
 
     # Optional evaluator function, if f for example expects vector
+    # (line search)
     if evaluator is not None:
         ev = evaluator[0]
         args = evaluator[1:]
@@ -17,12 +18,14 @@ def gss(f, a, b, evaluator=None, max_iter=500, epsilon=1e-6):
             return x
         args = None
 
+    # initialize parameters
     a, b = min(a, b), max(a, b)
     tau = (np.sqrt(5)-1)/2
     x1 = a + (1-tau)*(b-a)
     f1 = f(ev(x1, args))
     x2 = a+tau*(b-a)
     f2 = f(ev(x2, args))
+
     for i in range(max_iter):
         if f1 > f2:
             a = x1
@@ -44,7 +47,7 @@ def gss(f, a, b, evaluator=None, max_iter=500, epsilon=1e-6):
 
 def newton_raphson(f, x0, evaluator=None, h=5e-2, max_iter=50, epsilon=1e-3):
     """
-    Newton Raphson method for 1D minimizing.
+    Newton Raphson method for 1D root finding. Uses a numerical derivative
     """
     if evaluator is not None:
         ev = evaluator[0]
@@ -97,6 +100,9 @@ def bisection(f, a, b, epsilon=1e-6):
 
 
 def secant(f, x0, x1, max_iter=100, epsilon=1e-6):
+    """
+    Secant algorithm for root finding.
+    """
     x = [x0, x1]
     fx = [f(x0), f(x1)]
 
@@ -110,8 +116,9 @@ def secant(f, x0, x1, max_iter=100, epsilon=1e-6):
 
 
 def inverse_quadratic(f, a, b, c, max_iter=100, epsilon=1e-6):
-    # Sort a, b and c
-    # a, b, c = sorted([a, b, c])
+    """
+    Inverse quadratic interpolation for root finding.
+    """
     guesses = []
     for i in range(max_iter):
         fa = f(a)
@@ -137,7 +144,7 @@ def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
                        max_iter=100, epsilon=1e-6, return_s=False):
     """
     Conjugate Gradient method for unconstrained optimization
-    Uses a numerical approximation to Newtons method for optimization.
+    Uses a numerical gradient if none is provided. Uses GSS for line search.
 
     inputs:
     - f: objective function
@@ -161,12 +168,8 @@ def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
 
     # bar = Bar("Simulating", max=max_iter)
     for k in range(max_iter):
-        alpha = line_search(f, g2, x[-1].flatten(), ss[-1].flatten())[0]
-
-        if alpha is None:
-            alpha = gss(f, alpha_min, alpha_max, [evaluator, x[-1], ss[-1]])
+        alpha = gss(f, alpha_min, alpha_max, [evaluator, x[-1], ss[-1]])
         alphas.append(alpha)
-        print(alpha)
         x_new = x[-1] + alpha * ss[-1]
         x.append(x_new)
         # bar.next()
@@ -190,6 +193,9 @@ def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
 
 
 def newton_gradient(f, alpha, x0, s, h=1e-3, max_iter=100, epsilon=1e-3):
+    """
+    Newtons method for 1D minimizing. Uses numerical derivatives.
+    """
     x_last = alpha
     x_new = alpha
     for i in range(max_iter):
