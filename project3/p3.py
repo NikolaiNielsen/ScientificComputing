@@ -7,6 +7,7 @@ from scipy.optimize import fmin_cg, line_search
 from f3 import *
 from progress.bar import Bar
 import timeit
+import time
 
 
 np.seterr(all='raise')
@@ -19,15 +20,6 @@ B = 4*EPSILON*SIGMA**6
 
 def potential1D(r, r0=0):
     V = A/(r-r0)**12 - B/(r-r0)**6
-    return V
-
-
-def potential(R2, A=A, B=B):
-    """
-    Calculates the total interatomic potential (assuming Lennard Jones
-    potential). Takes all interatomic distances squared as input.
-    """
-    V = np.sum(A/R2**6 - B/R2**3, axis=0)
     return V
 
 
@@ -150,7 +142,7 @@ def q2():
 
     s = "from f3 import newton_raphson, bisection, secant, inverse_quadratic"
     s = s + "\nfrom p3 import potential1D"
-    N = 1000
+    N = 10000
     bisection_time = timeit.timeit("bisection(potential1D, 2, 4)",
                                    setup=s, number=N)/N
     newton_raphson_time = timeit.timeit("newton_raphson(potential1D, x0=2)",
@@ -162,73 +154,71 @@ def q2():
 
     print("Roots of 12-6 Lennard-Jones potential found:\n")
     print("Bisection Method:")
-    print(f"Root: {x1:.3f}")
+    print(f"Root: {x1:.5f}")
     print(f"Avg time: {bisection_time:.3e}\n")
 
     print("Newton-Raphson Method with numerical derivative:")
-    print(f"Root: {x2:.3f}")
+    print(f"Root: {x2:.5f}")
     print(f"Avg time: {newton_raphson_time:.3e}\n")
 
     print("Secant Method:")
-    print(f"Root: {x3:.3f}")
+    print(f"Root: {x3:.5f}")
     print(f"Avg time: {secant_time:.3e}\n")
 
     print("Inverse Quadratic Method:")
-    print(f"Root: {x4:.3f}")
+    print(f"Root: {x4:.5f}")
     print(f"Avg time: {quadratic_time:.3e}")
 
 
 def q3():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    alpha_max = 1e1
+    alpha_max = 2
+
+    t0 = time.time()
     x = conjugate_gradient(potential_total, data, g=gradient_total,
                            g2=gradient_total2,
                            alpha_max=alpha_max,
-                           max_iter=2000, epsilon=1e-9)
+                           max_iter=2000, epsilon=1e-7)
+    t1 = time.time()
+    totT = (t1-t0)
+    energies = [potential_total(r) for r in x]
 
-    c = ['b']*20 + ['r']*20
-    # for n in range(len(x)-1):
-    #     res = x[n+1] - x[n]
-    #     print(np.sum(np.sqrt(np.sum(res**2, axis=1))))
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    print(f"Minimum potential {energies[-1]:.3e} found in {totT:.3e} seconds.")
 
-    # writer = anim.FFMpegWriter(fps=1)
-    # bar = Bar('Writing movie', max=len(x))
-    # dpi = 200
-    # outfile = 'movie.mp4'
-    # with writer.saving(fig, outfile, dpi):
-    #     for X in x:
-    #         X = X.T
-    #         ax.scatter(X[0], X[1], X[2], c=c)
-    #         writer.grab_frame()
-    #         ax.clear()
-    #         bar.next()
-    # bar.finish()
-
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211, projection='3d')
+    ax2 = fig.add_subplot(212)
     last = x[-1].T
-    ax.scatter(last[0], last[1], last[2])
-    # ax.quiver(last[0], last[1], last[2], s[0], s[1], s[2], length=1)
-    plt.show()
+    ax1.scatter(last[0], last[1], last[2])
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('y')
+    ax1.set_zlabel('z')
+    ax2.plot(energies)
+    ax2.set_yscale('log')
+    ax2.set_xlabel('Iteration number')
+    ax2.set_ylabel('$V_{tot}$')
+    fig.savefig("q3fig.pdf")
+    # plt.show()
 
 
 def scipy_solution():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
-    alliters = np.load('alliter.npy')
-    # result, alliters = fmin_cg(potential_total, data.flatten(), retall=True)
-    # np.save('alliter', alliters)
-    alliters = alliters.reshape((-1, 40, 3))
-    first = alliters[1].T
-
-    # x = result.reshape((-1, 3)).T
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    c = ['b']*20 + ['r']*20
-    ax.scatter(first[0], first[1], first[2], c=c)
-    plt.show()
+    # alliters = np.load('alliter.npy')
+    t0 = time.time()
+    result, alliters = fmin_cg(potential_total, data.flatten(), retall=True)
+    t1 = time.time()
+    totT = t1-t0
+    x = result.reshape((40, 3))
+    pot = potential_total(x)
+    print(f"Minimum potential {pot:.3e} found in {totT:.3e} seconds.")
 
 
 def main():
+    # fig, ax1, ax2 = q1()
+    # fig.savefig('q1fig.pdf')
+    # q2()
     q3()
 
 
 if __name__ == "__main__":
-    main()
+    scipy_solution()
