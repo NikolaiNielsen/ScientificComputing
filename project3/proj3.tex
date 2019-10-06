@@ -86,7 +86,20 @@
 	
 	$ T $ in the equation is the ``temperature''. This is slowly decreased as the simulation runs, to make unfavourable jumps less desirable as the simulation progresses.
 	
-	For the simulation we use the following parameters: $ T_i = 1.0 $, $ T_f = 10^{-5} $, $\alpha = (T_f/T_i)^{1/N} $, $ N=10^5 $
+	For the simulation we use the following parameters: $ T_i = 1.0 $, $ T_f = 10^{-5} $, $\alpha = (T_f/T_i)^{1/N} $, $ N=10^5 $ and perform 100 iterations for each temperature. Further we let the neighbour step be between -0.1 and 0.1.
+	
+	Letting the simulation run (with the seed 42) yields a potential of $ 5.224 \D 10^{3} $ in 165.9 seconds. So a better result than the conjugate gradient, but at a significant time cost.
+	
+	The resulting position and costs can be seen in figure \ref{fig:q4fig}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{q4fig.pdf}
+		\caption{Final position and graph of total potential as a function of iteration number}
+		\label{fig:q4fig}
+	\end{figure}
+	The iteration number here does not mean the cost at \textit{every} iteration, but rather the cost at every point where we adopt a neighbour as the new state.
+	
+	This algorithm could maybe be coupled with the conjugate gradient method to introduce components to the gradient that are orthogonal to the plane of the initial state, yielding a more optimal solution. I unfortunately do not have time for this, but it would be interesting to investigate.
 	
 	
 \end{document}
