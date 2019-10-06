@@ -1,0 +1,92 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{Nikolai}
+\usepackage[margin=0.75in]{geometry}
+
+\title{Scientific Computing Project 3}
+\author{Nikolai Plambech Nielsen\\LPK331}
+\date{\today}
+
+
+\begin{document}
+	\maketitle
+	
+	\section*{Question 1}
+	For the 12-6 Lennard-Jones Potential between two atoms, we can simply define our constants and do a straightforward calculation. In this case our problem is one-dimensional, and we just create a linearly spaced set of points between 1.65 and 10 using np.linspace, calculate the potential at each value in the set of points, and plot the result.
+	
+	For clarity I mask the result to have the points with V>0 appear blue and the points with V<0 appear orange. Further I plot a second set of axes with the potential between 3 and 5, which is the "interesting" area, with both a root and a minimum. This is seen in figure \ref{fig:q1}
+	
+	Lastly we use the timeit module to measure the time it takes to calculate the total potential for the Argon cloud. The average time it takes is $ 1.4702 \D 10^{-4} $ S.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{q1fig.pdf}
+		\caption{12-6 Lennard Jones potential in two areas.}
+		\label{fig:q1}
+	\end{figure}
+
+
+	\section*{Question 2}
+	The analytical solution to this problem is given by
+	\begin{equation}\label{key}
+		r = \frac{A^{1/6}}{B^{1/6}} = \sigma
+	\end{equation}
+	For this question I have chosen to implement four different root-finding algorithms:
+	\begin{itemize}
+		\item Bisection
+		\item Newton-Raphson (with a central difference approximation to the derivative)
+		\item Secant
+		\item Inverse quadratic
+	\end{itemize}
+	For each of these algorithms I measure the time it takes to find the root given some starting condition (based on 10000 trials):
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c}
+			Method & Initial conditions & Result & Average time \\
+			\hline
+			Bisection & $ a=2, b=4 $ & 3.40100 & $ 2.986\D10^{-5} $ \\
+			Newton-Raphson & $ x_0 = 2 $ & 3.40100 & $ 3.241\D10^{-5} $ \\
+			Secant & $ x_0 = 1.65, x_1 = 2 $ & 3.40100 & $ 2.110\D10^{-5} $ \\
+			Inverse quadratic & $ a=1, b=2, c=3 $ & 3.40100 & $ 2.083\D10^{-5} $
+		\end{tabular}
+		\caption{Comparison of four 1D root finding methods.}
+		\label{tab:roots}
+	\end{table}
+	For each of them we see that it indeed finds the root correctly, and all algorithms solve the problem in roughly the same time - with inverse quadratic method being just slightly faster than the others, but still on the same order of magnitude. 
+	
+	For this problem, of course, we are dealing with a simple root, which all of the algorithms are adept at handling. Had we encountered a multiple root, the bisection algorithm is thrown out the window (unless, of course, it is a saddle point), and one would probably have to use the inverse fractional method.
+	
+	\section*{Question 3}
+	The conjugate gradient method makes use of the fact that the negative gradient is the direction of steepest descent for a given objective function. Then we use a 1D minimizer to find the minimum of the objective function in the direction of the steepest descent. For my implementation I have chosen to use the Golden Section Search. We are of course not guaranteed that the objective function is unimodal in the search direction - but it will converge on some minimum in the search interval.
+	
+	I calculate the gradient analytically, and for both this and the potential calculation I make use of the \texttt{pdist} and \texttt{cdist} functions from \texttt{scipy}, to calculate distances between atoms (using the squared Euclidean metric, to avoid costly square roots - there are only even powers in the expressions after all.)
+	
+	Further I reset the algorithm every $ n $ iterations, such that $ \beta_k = 0 $ for $ k \mod 10  = 0  $, as suggested in the book. I use $ n=10 $.
+	
+	With this I get the result shown in figure \ref{fig:q3fig}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{q3fig.pdf}
+		\caption{Final position and graph of total potential as a function of iteration number}
+		\label{fig:q3fig}
+	\end{figure}
+
+	The algorithm finds a potential of $ 2.933\D10^{5} $ in 14.95 seconds - not exactly impressive compared to Scipy which finds a potential of -177.7 in 14.65 seconds.
+	
+	A thing to note though, is that my solution retains the planar shape of the initial configurations - since all points in the initial configurations are coplanar, it makes sense that the configuration will keep this shape. This of course does not yield an optimal solution, which is evident from the solution given by Scipy.
+	
+	\section*{Question 4}
+	For this question I implement the simulated annealing algorithm. The basis of it is that we take a random step in a random direction in phase space (denoted as a neighbour), compute its cost. If the cost of the neighbour is smaller than the cost of the original state we adopt this as the new state.
+	
+	If the cost is greater, then we let a roll of the dice decide. We calculate the acceptance probability as
+	\begin{equation}\label{key}
+		p = e^{(f(x_k) - f(x_{k+1}))/T}
+	\end{equation}
+	and if $ p>r $ where $ r $ is a random number between 0 and 1 (uniformly distributed) we still accept it as the new state. This allows the simulated annealing algorithm to ``climb hills'' and approach a global minimum.
+	
+	$ T $ in the equation is the ``temperature''. This is slowly decreased as the simulation runs, to make unfavourable jumps less desirable as the simulation progresses.
+	
+	For the simulation we use the following parameters: $ T_i = 1.0 $, $ T_f = 10^{-5} $, $\alpha = (T_f/T_i)^{1/N} $, $ N=10^5 $
+	
+	
+\end{document}
