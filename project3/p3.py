@@ -44,14 +44,20 @@ def potential_total(r, A=A, B=B):
 
 
 def gradient_one_atom(r_other, x0, A=A, B=B):
-    R2 = cdist(r_other, x0.reshape((1, 3)), metric='euclidean')
-    frac = - 12*A/R2**14 + 6*B/R2**8
+    """
+    Calculates 3 parameters of the gradient of VLJ (ie, one atom) analytically
+    """
+    R2 = cdist(r_other, x0.reshape((1, 3)), metric='sqeuclidean')
+    frac = - 12*A/R2**7 + 6*B/R2**4
     coord_dists = r_other - x0
     grad = np.sum(coord_dists*frac, axis=0)
     return grad
 
 
 def gradient_total(r, A=A, B=B, normalize=True):
+    """
+    Calculate the total gradient of the Lennard Jones potential.
+    """
     grad = np.zeros(r.shape)
     for n, atom in enumerate(r):
         r_other = r[np.arange(r.shape[0]) != n]
@@ -76,7 +82,8 @@ def gradient_total2(r, A=A, B=B, normalize=True):
 
 def get_gradient(f, r, h=1e-4, normalize=True):
     """
-    Calculates the gradient of V_total
+    Calculates the gradient of V_total numerically with a central difference
+    approximation.
     """
     N = r.size//3
     grad = np.zeros(r.shape)
