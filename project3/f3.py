@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.optimize import line_search
-from progress.bar import Bar
 
 
 def gss(f, a, b, evaluator=None, max_iter=500, epsilon=1e-6):

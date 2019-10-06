@@ -5,7 +5,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import pdist, cdist
 from scipy.optimize import fmin_cg, line_search
 from f3 import *
-from progress.bar import Bar
 import timeit
 import time
 

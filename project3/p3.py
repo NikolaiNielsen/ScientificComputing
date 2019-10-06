@@ -5,9 +5,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.distance import pdist, cdist
 from scipy.optimize import fmin_cg, line_search
 from f3 import *
-from progress.bar import Bar
 import timeit
 import time
+from simulated_annealing import setup
 
 
 np.seterr(all='raise')
@@ -214,11 +214,13 @@ def scipy_solution():
 
 
 def main():
-    # fig, ax1, ax2 = q1()
-    # fig.savefig('q1fig.pdf')
-    # q2()
+    fig, ax1, ax2 = q1()
+    fig.savefig('q1fig.pdf')
+    q2()
     q3()
+    scipy_solution()
+    setup()
 
 
 if __name__ == "__main__":
-    scipy_solution()
+    main()
