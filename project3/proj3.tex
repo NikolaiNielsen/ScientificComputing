@@ -56,11 +56,15 @@
 	For this problem, of course, we are dealing with a simple root, which all of the algorithms are adept at handling. Had we encountered a multiple root, the bisection algorithm is thrown out the window (unless, of course, it is a saddle point), and one would probably have to use the inverse fractional method.
 	
 	\section*{Question 3}
-	The conjugate gradient method makes use of the fact that the negative gradient is the direction of steepest descent for a given objective function. Then we use a 1D minimizer to find the minimum of the objective function in the direction of the steepest descent. For my implementation I have chosen to use the Golden Section Search. We are of course not guaranteed that the objective function is unimodal in the search direction - but it will converge on some minimum in the search interval.
+	For my implementation I have chosen to use the Golden Section Search as the 1D minimizer. We are of course not guaranteed that the objective function is unimodal in the search direction - but it should converge on some minimum in the search interval.
 	
-	I calculate the gradient analytically, and for both this and the potential calculation I make use of the \texttt{pdist} and \texttt{cdist} functions from \texttt{scipy}, to calculate distances between atoms (using the squared Euclidean metric, to avoid costly square roots - there are only even powers in the expressions after all.)
+	I calculate the gradient analytically, and for both this and the potential calculation I make use of the \texttt{pdist} and \texttt{cdist} functions from \texttt{scipy}, to calculate distances between atoms. 
 	
-	Further I reset the algorithm every $ n $ iterations, such that $ \beta_k = 0 $ for $ k \mod 10  = 0  $, as suggested in the book. I use $ n=10 $.
+	I normalize the gradient using the max-norm to avoid overflow errors in the line search, and adjust $ \beta $ accordingly by including a factor of the ratios of the max-norms between the two gradients.
+	
+	I have chosen to set the line search interval between 0 and 2. It does not make sense to have it be negative, since that would entail searching along the positive gradient. The other end of the interval is also chosen rather arbitrarily - I would rather have my algorithm take small steps (essentially limited to 2Å in each direction), than have the atoms shoot out to a distance they will not feasibly recover from.
+	
+	Further I reset the algorithm every $ n $ iterations, such that $ \beta_k = 0 $ for $ k \mod n  = 0  $, as suggested in the book. I have arbitrarily chosen $ n=10 $.
 	
 	With this I get the result shown in figure \ref{fig:q3fig}
 	
