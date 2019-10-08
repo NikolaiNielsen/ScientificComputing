@@ -7,7 +7,6 @@ from scipy.optimize import fmin_cg, line_search
 from f3 import *
 import timeit
 import time
-from simulated_annealing import setup
 
 
 np.seterr(all='raise')
@@ -54,10 +53,12 @@ def gradient_total(r, A=A, B=B, normalize=True):
     for n, atom in enumerate(r):
         r_other = r[np.arange(r.shape[0]) != n]
         grad[n] = gradient_one_atom(r_other, atom, A, B)
-
+    
+    # Since we normalize we must account for this in calculating beta.
+    max_ = abs(np.max(grad))
     if normalize:
-        grad = grad/abs(np.max(grad))
-    return grad
+        grad = grad/max_
+    return grad, max_
 
 
 def gradient_total2(r, A=A, B=B, normalize=True):
@@ -201,6 +202,33 @@ def q3():
     # plt.show()
 
 
+def q4():
+    np.random.seed(42)
+    data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
+    data = data.flatten()
+    t0 = time.time()
+    x, costs = anneal(potential_total, data, target=0, NT=10000,
+                      neighbour=neighbour, neigharg=0.2)
+    t1 = time.time()
+    totT = t1-t0
+    x = x[-1].reshape((-1, 3))
+    costs = np.abs(np.array(costs))
+    print(f"Minimum potential {costs[-1]:.3e} found in {totT:.3e} seconds.")
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211, projection='3d')
+    ax2 = fig.add_subplot(212)
+    ax1.scatter(x.T[0], x.T[1], x.T[2])
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('y')
+    ax1.set_zlabel('z')
+    ax2.plot(costs)
+    ax2.set_yscale('log')
+    ax2.set_xlabel('Iteration number')
+    ax2.set_ylabel('$V_{tot}$')
+    fig.savefig("q4fig.pdf")
+
+
 def scipy_solution():
     data = np.genfromtxt('Ar-lines.csv', delimiter=' ')
     # alliters = np.load('alliter.npy')
@@ -219,7 +247,7 @@ def main():
     q2()
     q3()
     scipy_solution()
-    setup()
+    q4()
 
 
 if __name__ == "__main__":

@@ -156,7 +156,7 @@ def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
     if g is None:
         h = 1e-4
         g = num_gradient
-    g_last = g(x0)
+    g_last, max_last = g(x0)
 
     alpha_min = 0
 
@@ -176,11 +176,13 @@ def conjugate_gradient(f, x0, g=None, g2=None, alpha_max=1, n_restart=10,
         if np.sum(np.sqrt(np.sum(res**2))) < epsilon:
             break
 
-        G = g(x[-1])
+        G, max_new = g(x[-1])
         if k+1 % n_restart:
             beta = 0
         else:
-            beta = G.flatten().dot(G.flatten()) / \
+            # We include this factor to account for the gradient normalization
+            factor = max_new/max_last
+            beta = factor*factor*G.flatten().dot(G.flatten()) / \
                 (ss[-1].flatten().dot(ss[-1].flatten()))
 
         s = -G + beta*ss[-1]
@@ -223,3 +225,58 @@ def num_gradient(f, x, h=1e-4):
         fm = f(xm)
         grad[i] = (fp - fm)/(2*h)
     return grad
+
+
+def neighbour(x, stepsize=1):
+    # Pick a random parameter, and add a random amount (uniform) centred around
+    # 0, with size stepsize.
+    choice = np.random.randint(x.size)
+    x[choice] += np.random.uniform(-stepsize/2, stepsize/2)
+    return x
+
+
+def anneal(f, x0, neighbour=neighbour, neigharg=1, NT=100, Nf=100, target=1e-3,
+           minimize=True):
+
+    if not minimize:
+        # If we wanna maximize, we just change the sign of the cost function
+        # and target.
+        def neigh(x, arg):
+            return -neighbour(x, arg)
+        target = -target
+    else:
+        neigh = neighbour
+
+    # Set up starting parameters
+    x = x0
+    cost = f(x)
+    xs = [x]
+    costs = [cost]
+
+    # Initial temperature and final temperature
+    T = 1.0
+    T_min = 1e-5
+    # Scaling factor for T, chosen to temperature is changed NT times
+    alpha = (T_min/T)**(1/NT)
+
+    while T > T_min:
+        # For each temperature we test Nf neighbours.
+        for _ in range(Nf):
+            x_new = neigh(x, neigharg)
+            cost_new = f(x_new)
+
+            # if cost_new is better than cost, it is automatically accepted,
+            # since ap >= 1
+            ap = np.exp((cost-cost_new)/T)
+            if ap > np.random.uniform():
+                x = x_new
+                cost = cost_new
+                costs.append(cost)
+                xs.append(x)
+
+        # Decrease temperature
+        T = T * alpha
+
+        if cost <= target:
+            break
+    return xs, costs
