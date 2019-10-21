@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from f4 import *
 
 
@@ -146,6 +147,51 @@ def no_deaths_or_transfusions():
 
     fig.tight_layout()
     fig.savefig('no_death_or_transfusion.pdf')
+
+
+def transfusions():
+    N_e = 101
+    e = np.linspace(0, 1, N_e)
+    params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
+    x0 = [0.01, 0, 0, 0]
+    params = np.array(params)
+    x0 = np.array(x0)
+    sim_data = False
+
+    if sim_data:
+        z = []
+        for i in range(N_e):
+            params[8] = e[i]
+            x_, t = sim(f, x0, params)
+            x_ = x_.squeeze()
+            z.append(x_[-1])
+        z = np.array(z)
+        np.save('transfusion_data', z)
+    else:
+        z = np.load('transfusion_data.npy')
+        N_e, N_t = z.shape
+        dt = 5e-4
+        t = np.cumsum(np.zeros(N_t)+dt) - dt
+        e = np.linspace(0, 1, N_e)
+
+    tt, ee = np.meshgrid(t, e)
+
+    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 3.5))
+    im = ax1.imshow(z, extent=[0, t[-1], 0, 1], aspect='auto', origin='lower',
+                    cmap='coolwarm')
+    ax1.contour(tt, ee, z, colors='xkcd:cement', levels=list(range(0, 101, 5)))
+    fig.colorbar(im, cmap='coolwarm')
+    fig.suptitle('Effect of blood transfusions on $z$')
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Blood transfusion rate $e_1$')
+
+    z_end = z[:, -1]
+    ax2.plot(e, z_end)
+    ax2.set_xlabel('Blood transfusion rate $e_1$')
+    ax2.set_ylabel('Final infected population $z$')
+    fig.tight_layout()
+    fig.savefig('transfusions.pdf')
 
 
 def main():
