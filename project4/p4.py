@@ -3,6 +3,33 @@ import matplotlib.pyplot as plt
 from f4 import *
 
 
+def jacobian(x, params):
+    """
+    Jacobian for Differential equation for HIV transmittance.
+    simulates for n different set of parameters
+
+    Inputs:
+    x - [4,]
+    params - [17,]
+    """
+    a1, a2, b1, b2, b3, c1, c2, d1, e, r1, r2, r3, r4, p1, p2, q, r = params.T
+    x1, x2, y, z = x.T
+    jac = np.zeros(4, 4)
+    jac[0, 0] = a1*(p1-2*x1) - a2*x2 - r1
+    jac[0, 1] = a2*(p1-x1)
+    jac[1, 0] = b1*(p2-x2)
+    jac[1, 1] = -b1*x1 + b2*(p2-2*x2) - b3*y - r2
+    jac[1, 2] = b3*(p2-x2)
+    jac[2, 1] = c1*(q-y)
+    jac[2, 2] = -c1*x2 - c2*z - r3
+    jac[2, 3] = c2*(q-y)
+    jac[3, 0] = e*(r-z)
+    jac[3, 2] = d1*(r-z)
+    jac[3, 3] = -d1*y - e*x1 - r3
+
+    return jac
+
+
 def create_plot(x, t):
     fig, ax = plt.subplots()
     x1, x2, y, z = x
