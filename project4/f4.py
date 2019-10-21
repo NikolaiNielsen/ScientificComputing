@@ -45,6 +45,20 @@ def f(x, params):
     return diffs
 
 
+def multivariate_newton(f, J, x0, params=None, tol=1e-6, maxiter=100):
+    xk = x0
+    for k in range(maxiter):
+        Jk = J(x0, params)
+        fk = -f(x0, params)
+        sk = np.linalg.solve(Jk, fk)
+        xk = x0 + sk
+        res = xk-x0
+        if np.sqrt(np.sum(res**2)) <= tol:
+            break
+        x0 = xk
+    return xk
+
+
 def rk4(r, params, dt, f):
     # The four contributions for the next step in the simulation
     k1 = f(r, params)
