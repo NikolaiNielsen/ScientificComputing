@@ -45,17 +45,22 @@ def f(x, params):
     return diffs
 
 
-def multivariate_newton(f, J, x0, params=None, tol=1e-6, maxiter=100):
+def multivariate_newton(f, J, x0, params=None, tol=1e-6, maxiter=100,
+                        return_k=False):
+    x0 = np.atleast_2d(x0)
+    params = np.atleast_2d(params)
     xk = x0
     for k in range(maxiter):
         Jk = J(x0, params)
-        fk = -f(x0, params)
+        fk = -f(x0, params).squeeze()
         sk = np.linalg.solve(Jk, fk)
         xk = x0 + sk
         res = xk-x0
         if np.sqrt(np.sum(res**2)) <= tol:
             break
         x0 = xk
+    if return_k:
+        return xk, k+1
     return xk
 
 
