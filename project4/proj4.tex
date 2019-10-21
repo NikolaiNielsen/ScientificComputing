@@ -34,6 +34,40 @@
 
 	We will simulate the system using both simple forward Euler integration and the 4th order Runge-Kutta method.
 	
-	\subsection{No death or blood transfusion}
-	Running the simulation with no blood transfusion or death we assume that the simulation reaches an equilibrium at the total populations. 
+	\subsection*{No death or blood transfusion}
+	Running the simulation with no blood transfusion or death we assume that the simulation reaches an equilibrium at the total populations. In figure \ref{fig:no_death} the simulation is run with both the methods, using $ \Delta t = 5\D 10^{-4} $ and running for 350 iterations.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{no_death_or_transfusion.pdf}
+		\caption{Simulation using both forward Euler and RK4. No death terms or transfusion present.}
+		\label{fig:no_death}
+	\end{figure}
+	Lastly we also check the convergence upon the expected values:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c}
+			Method & $ x_1 $ & $ x_2 $ & $ y $ & $ z $ \\
+			\hline
+			Euler & 4.98488725 & 4.99962777 & 99.94163087 & 99.9188132  \\
+			RK4 & 4.98554621 & 4.99963704 & 99.94619188 & 99.92539926 \\
+			\hline \hline
+			Expected & 5 & 5 & 100 & 100
+		\end{tabular}
+		\caption{Final values for all variables.}
+		\label{tab:final_vals1}
+	\end{table}
+	And sure enough, they are all close to the expected values, with the result for RK4 being closer than that for Euler (due to the smaller error rate for RK4).	
+	
+	\subsection*{With blood transfusions}
+	Next we add the blood transfusion term to the last equation. We plot the result for 101 values of $ e_1 $ between 0 and 1 (0, 0.01, 0.02, etc), and with all other parameters being equal to those before, using RK4. We also add contours to the plot at the values 0, 5, ..., 100. To verify that the transfusion term does not affect the asymptotic behaviour we also plot the last value of $ z $ for each value of $ e_1 $. The result is plotted in figure \ref{fig:transfusions}. 
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{transfusions.pdf}
+		\caption{Left: $ z $ as a function of time and blood transfusion rate. Contours are added to the plot at values 0, 5, ..., 100. Right: the last value of $ z $ as a function of blood transfusion rate.}
+		\label{fig:transfusions}
+	\end{figure}
+	The final value of $ z $ is slightly different for different blood transfusion rates, though all close to the expected value of 100. The discrepancy stems from the fact that the blood transfusion increases the derivative of $ z $ slightly, so the convergence happens faster for higher values of $ e_1 $. This is also evident in the contours on the left plot.
+	
+	\subsection*{With deaths}
+	Lastly we also add deaths to the system by adding an exponential decay to each equation.
 \end{document}
