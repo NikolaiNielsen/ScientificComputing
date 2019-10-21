@@ -14,7 +14,7 @@ def jacobian(x, params):
     """
     a1, a2, b1, b2, b3, c1, c2, d1, e, r1, r2, r3, r4, p1, p2, q, r = params.T
     x1, x2, y, z = x.T
-    jac = np.zeros(4, 4)
+    jac = np.zeros((4, 4))
     jac[0, 0] = a1*(p1-2*x1) - a2*x2 - r1
     jac[0, 1] = a2*(p1-x1)
     jac[1, 0] = b1*(p2-x2)
@@ -43,6 +43,14 @@ def create_plot(x, t):
     ax.set_title('Spread of HIV in population')
     ax.set_yscale('log')
     return fig, ax
+
+
+def find_equilibrium():
+    params = [10, 5, 5, 1, 1, 1, 1, 1, 0, 0.05, 0.05, 0.05, 0.05, 5, 5, 100,
+              100]
+    x0 = [4, 4, 90, 90]
+    x, k = multivariate_newton(f, jacobian, x0, params, return_k=True)
+    print(x, k)
 
 
 def test_rk4():
@@ -93,7 +101,7 @@ def test_euler():
 
 
 def main():
-    test_rk4()
+    find_equilibrium()
 
 
 if __name__ == "__main__":
