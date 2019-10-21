@@ -9,4 +9,31 @@
 
 \begin{document}
 	\maketitle
+	\section*{Part 1}
+	In the first part of the project we focus on simulating the spread of HIV in a population consisting of homosexual, bisexual and heterosexual males, along with heterosexual females.
+	
+	This results in a set of 4 coupled non-linear ordinary differential equations:
+	\begin{align}
+		\diff[d]{x_1}{t} &= a_1 x_1 (p_1-x_1) + a_2 x_2 ( p_1-x_1) - r_1 x_1 \\
+		\diff[d]{x_2}{t} &= b_1 x_1 (p_2-x_2) + b_2 x_2 ( p_2-x_2) +  b_3 y(p_2-x_2) - r_2 x_2 \\
+		\diff[d]{y}{t} &= c_1 x_2 (q-y) + a_2 z (q-y) - r_3 y \\
+		\diff[d]{z}{t} &= d_1 y (r-z) + e_1 x_1 (r-z) - r_4 z	
+	\end{align}
+	where $ x_1, x_2, y, z $ are the infected populations of homosexual males, bisexual males, females and heterosexual males respectively. $ p_1, p_2, q, r $ is the total population (in same units as their respective variables). $ a_1, a_2, b_1,$ $ b_2, b_3, c_1, c_2, d_1 $ are infection rates between differing populations (due to sexual contact). $ e_1 $ is the infection rate for heterosexual males due to blood transfusion. $ r_1, r_2, r_3, r_4 $ are the death rates for given infected populations.
+	
+	To start with we set $ r_1 = r_2 = r_3 = r_4 = e_1 = 0$, ie, disregard death and blood transfusion. In this case we are dealing with coupled systems of logistic growth, where the total population is usually referred to the carrying capacity. In this case the equilibrium is when the infected population equals the total population (ie, when there are no more individuals to infect):
+	\begin{equation}\label{key}
+		x_1 = p_1, \quad x_2=p_2, \quad y=q, \quad z=r.
+	\end{equation}
+	
+	Adding the blood transfusion term (ie $ e_1 > 0 $) does not change the nature of the systems of equations - it will just increase the rate of infection for $ z $. The maximum increase in infection rate possible is just $ e_1p_1 $ - when $ x_1 $ is at a maximum.
+	
+	For the whole assignment we take $ a_1=10, a_2=b_1=5 $ and all other infection rates to be unity. That leaves $ e_1 $ as a free parameter, along with $ r_1, r_2, r_3, r_4 $, the death rates.
+	
+	We use the initial conditions of $ x_1 = 0.01 $ and $ x_2=y=z =0 $.
+
+	We will simulate the system using both simple forward Euler integration and the 4th order Runge-Kutta method.
+	
+	\subsection{No death or blood transfusion}
+	Running the simulation with no blood transfusion or death we assume that the simulation reaches an equilibrium at the total populations. 
 \end{document}
