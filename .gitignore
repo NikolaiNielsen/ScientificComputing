@@ -1,4 +1,7 @@
+# No movies
 *.mp4
+# No Maple Worksheets
+*.mw
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

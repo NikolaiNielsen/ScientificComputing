@@ -1,6 +1,26 @@
 import numpy as np
 
 
+def linspace_with_ghosts(a, b, n):
+    """
+    Returns a vector x with n linearly spaced points between a and b, along
+    with a ghost node at each end, with the same linear spacing
+    """
+    # the spacing
+    dx = (b-a)/(n-1)
+    # then we want n+2 points between a-dx and b+dx:
+    x = np.arange(a-dx, b+2*dx, dx)
+    return x, dx
+
+
+def plot_without_ghosts(x, y, z, ax, **kwargs):
+    """
+    Plots a 2D surface on an axis object ax, without plotting the ghost nodes
+    """
+    ax.plot_surface(x[1:-1, 1:-1], y[1:-1, 1:-1], z[1:-1, 1:-1], **kwargs)
+    return None
+
+
 def f(x, params):
     """
     Differential equation for HIV transmittance.
@@ -15,7 +35,7 @@ def f(x, params):
     dx1 = a1*x1*(p1-x1) + a2*x2*(p1-x1) - r1*x1
     dx2 = b1*x1*(p2-x2) + b2*x2*(p2-x2) + b3*y*(p2-x2) - r2*x2
     dy = c1*x2*(q-y) + c2*z*(q-y) - r3*y
-    dz = d1*y*(r-z) + e*(p1-x1) - r4*z
+    dz = d1*y*(r-z) + e*x1*(r-z) - r4*z
 
     diffs = np.zeros(x.shape)
     diffs[:, 0] = dx1
