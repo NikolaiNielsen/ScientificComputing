@@ -81,7 +81,7 @@ def forward_euler(r, params, dt, f):
     return r + dt * dx
 
 
-def sim(f, x0, params, dt=5e-2, N=int(1e4), sim_method=rk4):
+def sim(f, x0, params, dt=5e-4, N=350, sim_method=rk4):
     """
     Simulate the system of equations using RK4, for n sets of parameters.
 
