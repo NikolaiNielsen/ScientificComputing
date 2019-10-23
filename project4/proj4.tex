@@ -22,7 +22,7 @@
 	where $ x_1, x_2, y, z $ are the infected populations of homosexual males, bisexual males, females and heterosexual males respectively. $ p_1, p_2, q, r $ is the total population (in same units as their respective variables). $ a_1, a_2, b_1,$ $ b_2, b_3, c_1, c_2, d_1 $ are infection rates between differing populations (due to sexual contact). $ e_1 $ is the infection rate for heterosexual males due to blood transfusion. $ r_1, r_2, r_3, r_4 $ are the death rates for given infected populations.
 	
 	To start with we set $ r_1 = r_2 = r_3 = r_4 = e_1 = 0$, ie, disregard death and blood transfusion. In this case we are dealing with coupled systems of logistic growth, where the total population is usually referred to the carrying capacity. In this case the equilibrium is when the infected population equals the total population (ie, when there are no more individuals to infect):
-	\begin{equation}\label{key}
+	\begin{equation}
 		x_1 = p_1, \quad x_2=p_2, \quad y=q, \quad z=r.
 	\end{equation}
 	
@@ -70,4 +70,44 @@
 	
 	\subsection*{With deaths}
 	Lastly we also add deaths to the system by adding an exponential decay to each equation.
+	
+	\newpage
+	\section*{Part 2}
+	\begin{align}
+		\diff{p}{t} &= D_p \nabla^2 p + p^2q+C-(K+1)p \\
+		\diff{q}{t} &= D_q \nabla^2 q - p^2q+Kp
+	\end{align}
+	
+	Discretized for p:
+	\begin{align*}
+		\frac{p(x, y, t+\Delta t) - p(x,y,t)}{\Delta t} &= D_p \frac{1}{h^2}\Big(p(x+h, y, t) + p(x-h, y, t) + p(x, y+h, t) + p(x, y-h, t) - 4p(x, y, t)\Big) \\
+		&+ p(x,y,t)^2q(x,y,t) + C - (K+1) p(x,y,t)
+	\end{align*}
+	and q:
+	\begin{align*}
+		\frac{q(x, y, t+\Delta t) - q(x,y,t)}{\Delta t} &= D_q \frac{1}{h^2}\Big(q(x+h, y, t) +q(x-h, y, t) + q(x, y+h, t) + q(x, y-h, t) - 4q(x, y, t)\Big) \\
+		&- p(x,y,t)^2q(x,y,t) +K p(x,y,t)
+	\end{align*}
+	
+	Or updating formulas:
+	\begin{align*}
+	p(x,y,t+\Delta t) &=p(x,y,t) + \Delta t \bigg[ D_p \frac{1}{h^2}\Big(p(x+h, y, t) + p(x-h, y, t) + p(x, y+h, t) + p(x, y-h, t) - 4p(x, y, t)\Big) \\
+	&+ p(x,y,t)^2q(x,y,t) + C - (K+1) p(x,y,t)\bigg]
+	\end{align*}
+	\begin{align*}
+	q(x,y,t+\Delta t) &=q(x,y,t) + \Delta t \bigg[ D_q \frac{1}{h^2}\Big(q(x+h, y, t) +q(x-h, y, t) + q(x, y+h, t) + q(x, y-h, t) - 4q(x, y, t)) \\
+	&- p(x,y,t)^2q(x,y,t) +K p(x,y,t\Big) \bigg]
+	\end{align*}
+	
+	Let's do the first time step. Let $ p(x,y,0) = C+0.1 $ and $ q(x,y,0) = K/C+0.2 $. Then for $ t=\Delta t $ we get
+	\begin{align*}
+		p(x,y,\Delta t) &=C+0.1 + \Delta t \bigg[ D_p \frac{1}{h^2}\Big(4(C+0.1) - 4(C+0.1)\Big)+ (C+0.1)^2 (K/C+0.2) + C - (K+1) (C+0.1)\bigg] \\
+		&= \alpha \ \text{(some constant)}
+	\end{align*}
+	Likewise for $ q $:
+	\begin{align*}
+	q(x,y,\Delta t) &=K/C+0.2 + \Delta t \bigg[ D_q \frac{1}{h^2}\Big(4(K/C + 0.2) - 4(K/C+0.2)\Big) -  (C+0.1)^2 (K/C+0.2) +K (C+0.1)\bigg] \\
+	&= \beta \ \text{(some other constant)}
+	\end{align*}
+	As such, if both $ p(x,y,t) $ and $ q(x,y,t) $ are some constants, for some $ t $ and all $ (x,y) $, then $ p(x,y,t+\Delta t) $ and $ q(x,y,\Delta t) $ are also constants (though different) for all $ (x,y) $
 \end{document}
