@@ -9,7 +9,7 @@ def linspace_with_ghosts(a, b, n):
     # the spacing
     dx = (b-a)/(n-1)
     # then we want n+2 points between a-dx and b+dx:
-    x = np.arange(a-dx, b+2*dx, dx)
+    x = a + dx * np.arange(0, n+2) - dx
     return x, dx
 
 
