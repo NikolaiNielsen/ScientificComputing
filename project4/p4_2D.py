@@ -129,11 +129,9 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
 
 
 def simtest():
-    Nx = 100
+    Nx = 121
     params = [1, 8, 4.5, 9]
-    T_end = 100
-    # Nt = 120000
-    p, q, xx, yy, t = simRD(Nx, params, T_end=T_end)
+    p, q, xx, yy, t = simRD(Nx, params)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot_surface(xx, yy, p)
