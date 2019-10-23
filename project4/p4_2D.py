@@ -98,8 +98,8 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
     dt = t[1]-t[0]
 
     # Create p and q arrays:
-    p = np.zeros((Nx+2, Nx+2, Nt))
-    q = np.zeros((Nx+2, Nx+2, Nt))
+    p_new = np.zeros((Nx+2, Nx+2))
+    q_new = np.zeros((Nx+2, Nx+2))
 
     # Populate initial condition - includes ghost nodes
     initial_x = (xx <= 30) * (xx >= 10)
@@ -107,17 +107,21 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
     initial = initial_x * initial_y
     p0 = C + 0.1
     q0 = K/C + 0.2
-    p[initial, 0] = p0
-    q[initial, 0] = q0
+    p_new[initial, 0] = p0
+    q_new[initial, 0] = q0
+
+    p_old = p_new.copy()
+    q_old = q_new.copy()
 
     bar = Bar("Simulating", max=Nt)
     bar.next()
     for k in range(1, Nt):
         # Update domain based on last step:
-        p[:, :, k], q[:, :, k] = calc_next_time(p[:, :, k-1], q[:, :, k-1],
-                                                h, dt, params)
+        p_new, q_new = calc_next_time(p_old, q_old, h, dt, params)
         # Update ghost nodes
-        p[:, :, k], q[:, :, k] = update_ghosts(p[:, :, k], q[:, :, k])
+        p_new, q_new = update_ghosts(p_new, q_new)
+        # propagate solution
+        p_old, q_old = p_new, q_new
         bar.next()
     bar.finish()
 
