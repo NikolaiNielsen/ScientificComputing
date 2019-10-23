@@ -107,8 +107,8 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
     initial = initial_x * initial_y
     p0 = C + 0.1
     q0 = K/C + 0.2
-    p_new[initial, 0] = p0
-    q_new[initial, 0] = q0
+    p_new[initial] = p0
+    q_new[initial] = q0
 
     p_old = p_new.copy()
     q_old = q_new.copy()
@@ -125,20 +125,21 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
         bar.next()
     bar.finish()
 
-    return p, q, xx, yy, t
+    return p_new, q_new, xx, yy, t
 
 
 def simtest():
     Nx = 100
     params = [1, 8, 4.5, 9]
+    T_end = 100
     # Nt = 120000
-    p, q, xx, yy, t = simRD(Nx, params)
+    p, q, xx, yy, t = simRD(Nx, params, T_end=T_end)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.plot_surface(xx, yy, p[:, :, -1])
+    ax.plot_surface(xx, yy, p)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.plot_surface(xx, yy, q[:, :, -1])
+    ax.plot_surface(xx, yy, q)
 
     plt.show()
 
