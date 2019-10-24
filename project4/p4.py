@@ -104,6 +104,9 @@ def test_euler():
 
 
 def no_deaths_or_transfusions():
+    """
+    Basic experiments
+    """
     params = [10, 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
     params = np.array(params)
@@ -150,6 +153,9 @@ def no_deaths_or_transfusions():
 
 
 def transfusions():
+    """
+    Simulate the effects of transfusions.
+    """
     # Standard parameters and initial conditions
     params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
@@ -187,19 +193,27 @@ def transfusions():
 
 
 def deaths1():
+    """
+    Analyzing death rates, one by one.
+    """
+
+    # Setting up basic parameters
     N_r = 151
     params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
     params = np.array(params)
     x0 = np.array(x0)
-    r1 = np.linspace(0, 3, num=N_r)
-    r2 = np.linspace(0, 3, num=N_r)
-    r3 = np.linspace(0, 60, num=N_r)
-    r4 = np.linspace(0, 60, num=N_r)
     ones = np.ones(N_r)
     params2 = np.outer(ones, params)
     x0 = np.outer(ones, x0)
 
+    # Death rates
+    r1 = np.linspace(0, 3, num=N_r)
+    r2 = np.linspace(0, 20, num=N_r)
+    r3 = np.linspace(0, 60, num=N_r)
+    r4 = np.linspace(0, 60, num=N_r)
+
+    # Analytical expressions of equilibrium values
     def calc_r1(r1, params):
         a1, a2, p1, p2 = params[[0, 1, -4, -3]]
         a = -a1
@@ -210,8 +224,8 @@ def deaths1():
 
     def calc_r2(r2, params):
         b1, b2, b3, p1, p2, q = params[[2, 3, 4, -4, -3, -2]]
-        a = -b1
-        b = b2*p2 - b1*p2 - b3*q - r2
+        a = -b2
+        b = b2*p2 - b1*p1 - b3*q - r2
         c = b1*p1*p2 + b2*q*p2
         x2 = (-b-np.sqrt(b*b-4*a*c))/(2*a)
         return x2
@@ -226,23 +240,29 @@ def deaths1():
         z = (d1*q*r + e*p1*r)/(d1*q+e*p1+r4)
         return z
 
-    def get_results(death_rate, variable_num, analytical_func, N_t=350, x0=x0,
+    # Little helper function for getting the relevant simulation results.
+    def get_results(death_rate, variable_num, analytical_func, N_t=500, x0=x0,
                     params=params2):
+        # Create 2D matrix with only varying death rate for relevant population
         params = params.copy()
         params[:, -4+variable_num] = death_rate
+
+        # Get analytical and simulated results.
         analytic = analytical_func(death_rate, params[0])
         x, t = sim(f, x0, params, N=N_t)
+
+        # Keep only relevant population, calculate residual and relative error
         simulation = x[:, variable_num, -1]
         res = simulation-analytic
         rel = res/analytic
         return simulation, analytic, rel
 
-    sim_x1, analytical_x1, rel_x1 = get_results(r1, -4, calc_r1, N_t=750)
-    sim_x2, analytical_x2, rel_x2 = get_results(r2, -3, calc_r2, N_t=750)
+    sim_x1, analytical_x1, rel_x1 = get_results(r1, -4, calc_r1)
+    sim_x2, analytical_x2, rel_x2 = get_results(r2, -3, calc_r2)
     sim_y, analytical_y, rel_y = get_results(r3, -2, calc_r3)
     sim_z, analytical_z, rel_z = get_results(r4, -1, calc_r4)
 
-    fig, ax = plt.subplots(ncols=2, nrows=4, figsize=(8, 16))
+    fig, ax = plt.subplots(ncols=2, nrows=4, figsize=(8, 12))
     ax = ax.flatten()
 
     ax[0].plot(r1, analytical_x1, label='Theory')
@@ -285,8 +305,7 @@ def deaths1():
     ax[7].set_xlabel('Death rate $r_4$')
     ax[7].set_ylabel('Relative error')
     fig.tight_layout()
-
-    plt.show()
+    fig.savefig('Deaths.pdf')
 
 
 def main():
