@@ -198,14 +198,6 @@ def deaths1():
     r4 = np.linspace(0, 60, num=N_r)
     ones = np.ones(N_r)
     params2 = np.outer(ones, params)
-    params_x1 = params2.copy()
-    params_x1[:, -8] = r1
-    params_x2 = params2.copy()
-    params_x2[:, -7] = r2
-    params_y = params2.copy()
-    params_y[:, -6] = r3
-    params_z = params2.copy()
-    params_z[:, -5] = r4
     x0 = np.outer(ones, x0)
 
     def calc_r1(r1, params):
@@ -234,20 +226,20 @@ def deaths1():
         z = (d1*q*r + e*p1*r)/(d1*q+e*p1+r4)
         return z
 
-    def get_results(death_rate, variable_num, analytical_func, x0=x0,
+    def get_results(death_rate, variable_num, analytical_func, N_t=350, x0=x0,
                     params=params2):
         params = params.copy()
         params[:, -4+variable_num] = death_rate
         analytic = analytical_func(death_rate, params[0])
-        x, t = sim(f, x0, params)
+        x, t = sim(f, x0, params, N=N_t)
         simulation = x[:, variable_num, -1]
         res = simulation-analytic
         rel = res/analytic
         return simulation, analytic, rel
 
-    sim_x1, analytical_x1, rel_x1 = get_results(r1, -4, calc_r1)
-    sim_x2, analytical_x2, rel_x2 = get_results(r2, -2, calc_r2)
-    sim_y, analytical_y, rel_y = get_results(r3, -3, calc_r3)
+    sim_x1, analytical_x1, rel_x1 = get_results(r1, -4, calc_r1, N_t=750)
+    sim_x2, analytical_x2, rel_x2 = get_results(r2, -3, calc_r2, N_t=750)
+    sim_y, analytical_y, rel_y = get_results(r3, -2, calc_r3)
     sim_z, analytical_z, rel_z = get_results(r4, -1, calc_r4)
 
     fig, ax = plt.subplots(ncols=2, nrows=4, figsize=(8, 16))
