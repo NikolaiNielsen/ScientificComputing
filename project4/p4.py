@@ -150,33 +150,25 @@ def no_deaths_or_transfusions():
 
 
 def transfusions():
-    N_e = 101
-    e = np.linspace(0, 1, N_e)
+    # Standard parameters and initial conditions
     params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
     params = np.array(params)
+    x0 = np.array(x0)
+
+    # Preparing the array of parameters
+    N_e = 101
+    e = np.linspace(0, 1, N_e)
     ones = np.ones(N_e)
+    # We keep all parameters except e1 the same
     params = np.outer(ones, params)
     params[:, 8] = e
-    x0 = np.array(x0)
     x0 = np.outer(ones, x0)
-    sim_data = True
 
-    if sim_data:
-        x_, t = sim(f, x0, params)
-        # Save only the heterosexual male arrays
-        z = x_[:, -1, :]
-        np.save('transfusion_data', z)
-    else:
-        z = np.load('transfusion_data.npy')
-        N_e, N_t = z.shape
-        dt = 5e-4
-        t = np.cumsum(np.zeros(N_t)+dt) - dt
-        e = np.linspace(0, 1, N_e)
-
+    x_, t = sim(f, x0, params)
+    # Save only the heterosexual male arrays
+    z = x_[:, -1, :]
     tt, ee = np.meshgrid(t, e)
-
-    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 3.5))
     im = ax1.imshow(z, extent=[0, t[-1], 0, 1], aspect='auto', origin='lower',
                     cmap='coolwarm')
@@ -194,8 +186,119 @@ def transfusions():
     fig.savefig('transfusions.pdf')
 
 
+def deaths1():
+    N_r = 151
+    params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
+    x0 = [0.01, 0, 0, 0]
+    params = np.array(params)
+    x0 = np.array(x0)
+    r1 = np.linspace(0, 3, num=N_r)
+    r2 = np.linspace(0, 3, num=N_r)
+    r3 = np.linspace(0, 60, num=N_r)
+    r4 = np.linspace(0, 60, num=N_r)
+    ones = np.ones(N_r)
+    params2 = np.outer(ones, params)
+    params_x1 = params2.copy()
+    params_x1[:, -8] = r1
+    params_x2 = params2.copy()
+    params_x2[:, -7] = r2
+    params_y = params2.copy()
+    params_y[:, -6] = r3
+    params_z = params2.copy()
+    params_z[:, -5] = r4
+    x0 = np.outer(ones, x0)
+
+    def calc_r1(r1, params):
+        a1, a2, p1, p2 = params[[0, 1, -4, -3]]
+        a = -a1
+        b = a1*p1-a2*p2-r1
+        c = a2*p2*p1
+        x1 = (-b-np.sqrt(b*b-4*a*c))/(2*a)
+        return x1
+
+    def calc_r2(r2, params):
+        b1, b2, b3, p1, p2, q = params[[2, 3, 4, -4, -3, -2]]
+        a = -b1
+        b = b2*p2 - b1*p2 - b3*q - r2
+        c = b1*p1*p2 + b2*q*p2
+        x2 = (-b-np.sqrt(b*b-4*a*c))/(2*a)
+        return x2
+
+    def calc_r3(r3, params):
+        c1, c2, p2, q, r = params[[5, 6, -3, -2, -1]]
+        y = (c1*p2*q + c2*r*q)/(c1*p2+c2*r+r3)
+        return y
+
+    def calc_r4(r4, params):
+        d1, e, p1, q, r = params[[7, 8, -4, -2, -1]]
+        z = (d1*q*r + e*p1*r)/(d1*q+e*p1+r4)
+        return z
+
+    def get_results(death_rate, variable_num, analytical_func, x0=x0,
+                    params=params2):
+        params = params.copy()
+        params[:, -4+variable_num] = death_rate
+        analytic = analytical_func(death_rate, params[0])
+        x, t = sim(f, x0, params)
+        simulation = x[:, variable_num, -1]
+        res = simulation-analytic
+        rel = res/analytic
+        return simulation, analytic, rel
+
+    sim_x1, analytical_x1, rel_x1 = get_results(r1, -4, calc_r1)
+    sim_x2, analytical_x2, rel_x2 = get_results(r2, -2, calc_r2)
+    sim_y, analytical_y, rel_y = get_results(r3, -3, calc_r3)
+    sim_z, analytical_z, rel_z = get_results(r4, -1, calc_r4)
+
+    fig, ax = plt.subplots(ncols=2, nrows=4, figsize=(8, 16))
+    ax = ax.flatten()
+
+    ax[0].plot(r1, analytical_x1, label='Theory')
+    ax[0].plot(r1, sim_x1, label='RK4')
+    ax[0].legend()
+    ax[0].set_xlabel('Death rate $r_1$')
+    ax[0].set_ylabel('Equilibrium value of $x_1$')
+
+    ax[1].plot(r1, rel_x1)
+    ax[1].set_xlabel('Death rate $r_1$')
+    ax[1].set_ylabel('Relative error')
+
+    ax[2].plot(r2, analytical_x2, label='Theory')
+    ax[2].plot(r2, sim_x2, label='RK4')
+    ax[2].legend()
+    ax[2].set_xlabel('Death rate $r_2$')
+    ax[2].set_ylabel('Equilibrium value of $x_2$')
+
+    ax[3].plot(r2, rel_x2)
+    ax[3].set_xlabel('Death rate $r_2$')
+    ax[3].set_ylabel('Relative error')
+
+    ax[4].plot(r3, analytical_y, label='Theory')
+    ax[4].plot(r3, sim_y, label='RK4')
+    ax[4].legend()
+    ax[4].set_xlabel('Death rate $r_3$')
+    ax[4].set_ylabel('Equilibrium value of $y$')
+
+    ax[5].plot(r3, rel_y)
+    ax[5].set_xlabel('Death rate $r_3$')
+    ax[5].set_ylabel('Relative error')
+
+    ax[6].plot(r4, analytical_z, label='Theory')
+    ax[6].plot(r4, sim_z, label='RK4')
+    ax[6].legend()
+    ax[6].set_xlabel('Death rate $r_4$')
+    ax[6].set_ylabel('Equilibrium value of $z$')
+
+    ax[7].plot(r4, rel_z)
+    ax[7].set_xlabel('Death rate $r_4$')
+    ax[7].set_ylabel('Relative error')
+    fig.tight_layout()
+
+    plt.show()
+
+
 def main():
-    transfusions()
+    deaths1()
 
 
 if __name__ == "__main__":
