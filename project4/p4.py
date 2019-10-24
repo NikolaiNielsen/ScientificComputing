@@ -155,17 +155,17 @@ def transfusions():
     params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
     params = np.array(params)
+    ones = np.ones(N_e)
+    params = np.outer(ones, params)
+    params[:, 8] = e
     x0 = np.array(x0)
-    sim_data = False
+    x0 = np.outer(ones, x0)
+    sim_data = True
 
     if sim_data:
-        z = []
-        for i in range(N_e):
-            params[8] = e[i]
-            x_, t = sim(f, x0, params)
-            x_ = x_.squeeze()
-            z.append(x_[-1])
-        z = np.array(z)
+        x_, t = sim(f, x0, params)
+        # Save only the heterosexual male arrays
+        z = x_[:, -1, :]
         np.save('transfusion_data', z)
     else:
         z = np.load('transfusion_data.npy')
@@ -195,7 +195,7 @@ def transfusions():
 
 
 def main():
-    no_deaths_or_transfusions()
+    transfusions()
 
 
 if __name__ == "__main__":
