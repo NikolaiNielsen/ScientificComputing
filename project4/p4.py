@@ -308,8 +308,46 @@ def deaths1():
     fig.savefig('Deaths.pdf')
 
 
+def deaths2():
+    """
+    Simulate the equilibrium populations with random death rates
+    """
+    # Standard parameters
+    N_d = 20
+    params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
+    x0 = [0.01, 0, 0, 0]
+    params = np.array(params)
+    x0 = np.array(x0)
+    ones = np.ones(N_d)
+    params2 = np.outer(ones, params)
+    x0 = np.outer(ones, x0)
+
+    # Include death rates
+    death_rates = np.random.uniform(low=0, high=[3, 20, 60, 60],
+                                    size=(N_d, 4))
+    params2[:, 9:13] = death_rates
+
+    # Solve for equilibrium populations iteratively
+    x0_eq = [4, 4, 90, 90]
+    xs_eq = []
+    ks = []
+    for param in params2:
+        x_eq, k = multivariate_newton(f, jacobian, x0_eq, param, return_k=True)
+        xs_eq.append(x_eq)
+        ks.append(k)
+    x_eq = np.array(xs_eq).squeeze()
+    k = np.array(ks)
+
+    # Simulate and compare results
+    x_sim, t = sim(f, x0, params2, N=500)
+    x_sim_eq = x_sim[:, :, -1]
+    res = (x_sim_eq - x_eq)
+    rel = (res/x_eq)
+    print(rel)
+
+
 def main():
-    deaths1()
+    deaths2()
 
 
 if __name__ == "__main__":
