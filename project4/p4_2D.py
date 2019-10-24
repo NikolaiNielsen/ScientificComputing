@@ -80,7 +80,7 @@ def update_ghosts(p, q):
     return p, q
 
 
-def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
+def simRD(Nx, params, Nt=None, T_end=2000):
     """
     Simulates reaction-diffusion
     """
@@ -92,7 +92,7 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
 
     # Calc timestep
     if Nt is None:
-        dt = h*h/(4*max(params))
+        dt = h*h/(4*max(params)*1.2)
         Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
@@ -129,10 +129,19 @@ def simRD(Nx, params, Nt=None, T_end=2000, p0=None, q0=None):
 
 
 def simtest():
-    Nx = 121
+    Nx = 101
     params = [1, 8, 4.5, 9]
-    p, q, xx, yy, t = simRD(Nx, params)
+    K = [7, 8, 9, 10, 11, 12]
+    filenames = [f"RDData_K{i}" for i in K]
 
+    for k, filename in zip(K, filenames):
+        params[-1] = k
+        p, q, xx, yy, t = simRD(Nx, params, T_end=2000)
+        np.savez(filename, p, q, xx, yy)
+
+
+def check_results():
+    p, q, xx, yy = np.load('RDData_K7.npz').values()
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot_surface(xx, yy, p)
 
@@ -143,7 +152,7 @@ def simtest():
 
 
 def main():
-    simtest()
+    check_results()
 
 
 if __name__ == "__main__":
