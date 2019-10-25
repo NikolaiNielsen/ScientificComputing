@@ -125,7 +125,12 @@ def simRD(Nx, params, Nt=None, T_end=2000):
         bar.next()
     bar.finish()
 
-    return p_new, q_new, xx, yy, t
+    # Only return computational domain:
+    p = p_new[1:Nx-1, 1:Nx-1]
+    q = q_new[1:Nx-1, 1:Nx-1]
+    xx = xx[1:Nx-1, 1:Nx-1]
+    yy = yy[1:Nx-1, 1:Nx-1]
+    return p, q, xx, yy, t
 
 
 def simtest():
@@ -141,12 +146,12 @@ def simtest():
 
 
 def check_results():
-    p, q, xx, yy = np.load('RDData_K7.npz').values()
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.plot_surface(xx, yy, p)
+    p, q, xx, yy = np.load('RDData_K8.npz').values()
+    fig, ax = plt.subplots()
+    ax.contour(xx, yy, p)
 
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.plot_surface(xx, yy, q)
+    fig, ax = plt.subplots()
+    ax.contour(xx, yy, q)
 
     plt.show()
 
