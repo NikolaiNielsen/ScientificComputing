@@ -51,7 +51,7 @@ def calc_next_time(p, q, h, dt, params):
     p[1:N+1, 1:N+1] = p_i_j + dt*f
     q[1:N+1, 1:N+1] = q_i_j + dt*g
 
-    return p, q
+    return p, q, f, g
 
 
 def update_ghosts(p, q):
@@ -113,11 +113,15 @@ def simRD(Nx, params, Nt=None, T_end=2000):
     p_old = p_new.copy()
     q_old = q_new.copy()
 
+    residuals = np.zeros((2, Nt))
+
     bar = Bar("Simulating", max=Nt)
     bar.next()
     for k in range(1, Nt):
         # Update domain based on last step:
-        p_new, q_new = calc_next_time(p_old, q_old, h, dt, params)
+        p_new, q_new, f, g = calc_next_time(p_old, q_old, h, dt, params)
+        residuals[0, k] = np.sum(f**2)/(Nx**2)
+        residuals[1, k] = np.sum(g**2)/(Nx**2)
         # Update ghost nodes
         p_new, q_new = update_ghosts(p_new, q_new)
         # propagate solution
@@ -130,7 +134,7 @@ def simRD(Nx, params, Nt=None, T_end=2000):
     q = q_new[1:Nx-1, 1:Nx-1]
     xx = xx[1:Nx-1, 1:Nx-1]
     yy = yy[1:Nx-1, 1:Nx-1]
-    return p, q, xx, yy, t
+    return p, q, xx, yy, residuals
 
 
 def simtest():
