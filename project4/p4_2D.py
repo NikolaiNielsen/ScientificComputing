@@ -92,7 +92,7 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
     # Calc timestep
     if Nt is None:
-        dt = h*h/(4*max(params)*1.2)
+        dt = h*h/(4*max(params))
         Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
@@ -139,28 +139,37 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
 def simtest():
     Nx = 101
-    params = [1, 8, 4.5, 9]
+    params = [1, 8, 4.5, 12]
     K = [7, 8, 9, 10, 11, 12]
-    filenames = [f"RDData_K{i}" for i in K]
+    p, q, xx, yy, residuals = simRD(Nx, params, T_end=2000)
+    np.savez('residual_data', p, q, xx, yy, residuals)
+    # filenames = [f"RDData_K{i}" for i in K]
 
-    for k, filename in zip(K, filenames):
-        params[-1] = k
-        p, q, xx, yy, t = simRD(Nx, params, T_end=2000)
-        np.savez(filename, p, q, xx, yy)
+    # for k, filename in zip(K, filenames):
+    #     params[-1] = k
+    #     p, q, xx, yy, t = simRD(Nx, params, T_end=2000)
+    #     np.savez(filename, p, q, xx, yy)
 
 
 def check_results():
-    p, q, xx, yy = np.load('RDData_K8.npz').values()
+    p, q, xx, yy, res = np.load('residual_data.npz').values()
+    res = res.T
     fig, ax = plt.subplots()
-    ax.contour(xx, yy, p)
+    ax.plot(res)
 
     fig, ax = plt.subplots()
-    ax.contour(xx, yy, q)
+    ax.plot(res)
+    ax.set_yscale('log')
+    # ax.contour(xx, yy, p)
+
+    # fig, ax = plt.subplots()
+    # ax.contour(xx, yy, q)
 
     plt.show()
 
 
 def main():
+    # simtest()
     check_results()
 
 
