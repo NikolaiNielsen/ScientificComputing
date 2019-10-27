@@ -69,7 +69,25 @@
 	The final value of $ z $ is slightly different for different blood transfusion rates, though all close to the expected value of 100. The discrepancy stems from the fact that the blood transfusion increases the derivative of $ z $ slightly, so the convergence happens faster for higher values of $ e_1 $. This is also evident in the contours on the left plot.
 	
 	\subsection*{With deaths}
-	Lastly we also add deaths to the system by adding an exponential decay to each equation.
+	Lastly we also add deaths to the system by adding an exponential decay to each equation. This gives us an extra 4 parameters to play with, along with the transfusion rate.
+	
+	The effect of the death parameters is to add a competing decay to the growth, causing a new equilibrium to appear. If we vary only a single of these parameters at a time we can easily find an analytical expression for the last parameters equilibrium value. Varying $ r_1 $ whilst keeping the others at 0 gives the equilibria:
+	\begin{equation}\label{key}
+		x_1^* = \frac{-\beta - \sqrt{\beta^2 - 4\alpha \gamma}}{2 \alpha}, \quad \alpha=-a_1, \beta = a_1p_1-a_2p_2-r_1, \gamma =a_2p_2p_1
+	\end{equation}
+	with $ x_2^* = p_2 $, $ y^* = q $, $ z^* = r $. Similarly varying $ r_2 $ gives
+	\begin{equation}\label{key}
+		x_2^* = \frac{-\beta - \sqrt{\beta^2 - 4\alpha \gamma}}{2 \alpha}, \quad \alpha=-b_2, \beta = b_2p_2-b_1p_1-b_3q-r_2, \gamma =b_1p_1p_2 + b_3qp_2
+	\end{equation}
+	for $ r_3 $ we get
+	\begin{equation}\label{key}
+		y^* = \frac{c_1p_2q+c_2rq}{c_1p_2 + c_2r+r_3}
+	\end{equation}
+	and lastly for $ r_4 $ we get
+	\begin{equation}\label{key}
+		z^* = \frac{d_1 q r + e_1p_1r}{d_1q+e_1p_1+r_4}
+	\end{equation}
+	
 	
 	\newpage
 	\section*{Part 2}
