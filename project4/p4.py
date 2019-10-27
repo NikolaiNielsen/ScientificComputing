@@ -362,7 +362,6 @@ def deaths2():
         print(s3)
         print(s4)
         print()
-    # print(rel)
 
 
 def main():

@@ -197,10 +197,14 @@
 		\item Update ghost nodes to observe boundary conditions, using equation \ref{eq:ghosts} or similar
 		\item Repeat steps 2 and 3 until the time $ T=2000 $ is reached.
 	\end{enumerate}
-	Lastly we need to specify $ h $ and $ \Delta t $. I set the number of points to be $ N_x=121 $, which gives $ h = L/(N_x-1) = (40-0)/(121-1) =  1/3 $. For $ \Delta t $ I use a modification of the bound for the diffusion equation ($ \Delta t \leq h^2/2c $). I let $ c = \max (D_p, D_q, C, K) $ (which is essentially just $ \max(D_q, K) $) and choose
+	Lastly we need to specify $ h $ and $ \Delta t $. I set the number of points to be $ N_x=201 $, which gives $ h = L/(N_x-1) = (40-0)/(201-1) =  1/5 $. For $ \Delta t $ I use a modification of the bound for the diffusion equation ($ \Delta t \leq h^2/2c $). I let $ c = \max (D_p, D_q, C, K) $ (which is essentially just $ \max(D_q, K) $) and choose
 	\begin{equation}\label{key}
-		\Delta t = \frac{h^2}{4c}
+		\Delta t = \frac{h^2}{4.8c}
 	\end{equation}
-	This might be a conservative bound, but using Numpy operations, the compute time is a couple of minutes, which is acceptable to me.
+	Each simulation takes around an hour to complete with this fine resolution grid, especially due to the constraint on $ \Delta t $, yielding between 1.9 and 2.8 million iterations.
+	
+	Though for a lower resolution of $ N_x = 121 $ with $ h = 1/3 $ the simulation takes a couple of minutes, which seems acceptable.
+	
+	The results are shown in the figures below, for each of the different values of $ K $
 	
 \end{document}
