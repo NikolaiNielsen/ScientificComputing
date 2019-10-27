@@ -313,7 +313,7 @@ def deaths2():
     Simulate the equilibrium populations with random death rates
     """
     # Standard parameters
-    N_d = 20
+    N_d = 4
     params = [10., 5, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 5, 5, 100, 100]
     x0 = [0.01, 0, 0, 0]
     params = np.array(params)
@@ -343,7 +343,26 @@ def deaths2():
     x_sim_eq = x_sim[:, :, -1]
     res = (x_sim_eq - x_eq)
     rel = (res/x_eq)
-    print(rel)
+    # Format for .tex table
+    for rel_row, death_row, sim_eq, an_eq in zip(rel, death_rates,
+                                                 x_sim_eq, x_eq):
+        death_parts = [f'{i:.3f} & ' for i in death_row]
+        s1 = 'Death Rate & ' + "".join(death_parts)[:-2] + r" \\"
+
+        an_parts = [f'{i:.3f} & ' for i in an_eq]
+        s2 = 'Analytical & ' + "".join(an_parts)[:-2] + r" \\"
+
+        sim_parts = [f'{i:.3f} & ' for i in sim_eq]
+        s3 = 'Simulated & ' + "".join(sim_parts)[:-2] + r" \\"
+
+        rel_parts = [f'{i:.3e} & ' for i in rel_row]
+        s4 = 'Relative error & ' + "".join(rel_parts)[:-2] + r" \\"
+        print(s1)
+        print(s2)
+        print(s3)
+        print(s4)
+        print()
+    # print(rel)
 
 
 def main():
