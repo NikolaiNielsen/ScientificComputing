@@ -62,20 +62,20 @@ def update_ghosts(p, q):
     """
 
     # Horizontal borders
-    p[0] = p[2]
-    p[-1] = p[-3]
+    p[0] = p[1]
+    p[-1] = p[-2]
 
     # Vertical borders
-    p[:, 0] = p[:, 2]
-    p[:, -1] = p[:, -3]
+    p[:, 0] = p[:, 1]
+    p[:, -1] = p[:, -2]
 
     # Horizontal borders
-    q[0] = q[2]
-    q[-1] = q[-3]
+    q[0] = q[1]
+    q[-1] = q[-2]
 
     # Vertical borders
-    q[:, 0] = q[:, 2]
-    q[:, -1] = q[:, -3]
+    q[:, 0] = q[:, 1]
+    q[:, -1] = q[:, -2]
 
     return p, q
 
@@ -92,7 +92,7 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
     # Calc timestep
     if Nt is None:
-        dt = h*h/(4*max(params))
+        dt = h*h/(4*max(params)*1.2)
         Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
@@ -138,32 +138,32 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
 
 def simtest():
-    Nx = 101
-    params = [1, 8, 4.5, 12]
-    K = [7, 8, 9, 10, 11, 12]
-    p, q, xx, yy, residuals = simRD(Nx, params, T_end=2000)
-    np.savez('residual_data', p, q, xx, yy, residuals)
-    # filenames = [f"RDData_K{i}" for i in K]
-
-    # for k, filename in zip(K, filenames):
-    #     params[-1] = k
-    #     p, q, xx, yy, t = simRD(Nx, params, T_end=2000)
-    #     np.savez(filename, p, q, xx, yy)
+    Nx = 201
+    params = [1, 8, 4.5, 9]
+    K = [9]
+    file1 = [f'BigRD_K{i}_p' for i in K]
+    file2 = [f'BigRD_K{i}_q' for i in K]
+    for k, f1, f2 in zip(K, file1, file2):
+        params[-1] = k
+        p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
+        np.save(f1, p)
+        np.save(f2, q)
 
 
 def check_results():
-    p, q, xx, yy, res = np.load('residual_data.npz').values()
-    res = res.T
-    fig, ax = plt.subplots()
-    ax.plot(res)
+    K = list(range(7, 13))
+    names = [f'BigRD_K{k}' for k in K]
+    for name in names:
+        q = np.load(name + '_q.npy')
+        p = np.load(name + '_p.npy')
 
-    fig, ax = plt.subplots()
-    ax.plot(res)
-    ax.set_yscale('log')
-    # ax.contour(xx, yy, p)
+        fig, ax = plt.subplots()
+        cont1 = ax.contour(p)
+        fig.colorbar(cont1)
 
-    # fig, ax = plt.subplots()
-    # ax.contour(xx, yy, q)
+        fig, ax = plt.subplots()
+        cont2 = ax.contour(q)
+        fig.colorbar(cont2)
 
     plt.show()
 
