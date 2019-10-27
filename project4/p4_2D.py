@@ -156,25 +156,27 @@ def check_results():
     Nx = 199
     x = np.linspace(0, 40, Nx)
     xx, yy = np.meshgrid(x, x)
-    cmap = 'cool'
+    cmap = 'coolwarm'
     for name in names:
         q = np.load(name + '_q.npy')
         p = np.load(name + '_p.npy')
         max_ = max(np.amax(p), np.amax(q))
         min_ = min(np.amin(p), np.amin(q))
 
-        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 3.5))
-        # im = ax1.imshow(p, extent=[0, 40, 0, 40],
-        #                 origin='lower', cmap='coolwarm', vmin=min_,
-        #                 vmax=max_)
-        im = ax1.contour(xx, yy, p, cmap=cmap, vmin=min_, vmax=max_)
-        # ax2.imshow(q, extent=[0, 40, 0, 40], origin='lower', cmap='coolwarm',
-        #            vmin=min_, vmax=max_)
-        ax2.contour(xx, yy, q, cmap=cmap, vmin=min_, vmax=max_)
-        bounds = ax1.get_position().bounds
-        fig.subplots_adjust(right=0.85)
-        cbar_ax = fig.add_axes([0.9, bounds[1], 0.05, bounds[3]])
-        fig.colorbar(im, cax=cbar_ax)
+        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
+        im1 = ax1.contour(xx, yy, p, cmap=cmap)
+        im2 = ax2.contour(xx, yy, q, cmap=cmap)
+        ax1.set_aspect('equal')
+        ax2.set_aspect('equal')
+        ax1.set_title('$p(x,y,t=2000)$')
+        ax2.set_title('$q(x,y,t=2000)$')
+        bounds1 = ax1.get_position().bounds
+        bounds2 = ax2.get_position().bounds
+        fig.subplots_adjust(bottom=0.2)
+        cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
+        cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
+        fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
+        fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
         fig.savefig(name + '.pdf')
 
 
