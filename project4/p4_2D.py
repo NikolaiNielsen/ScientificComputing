@@ -130,10 +130,10 @@ def simRD(Nx, params, Nt=None, T_end=2000):
     bar.finish()
 
     # Only return computational domain:
-    p = p_new[1:Nx-1, 1:Nx-1]
-    q = q_new[1:Nx-1, 1:Nx-1]
-    xx = xx[1:Nx-1, 1:Nx-1]
-    yy = yy[1:Nx-1, 1:Nx-1]
+    p = p_new[1:Nx+1, 1:Nx+1]
+    q = q_new[1:Nx+1, 1:Nx+1]
+    xx = xx[1:Nx+1, 1:Nx+1]
+    yy = yy[1:Nx+1, 1:Nx+1]
     return p, q, xx, yy, residuals
 
 
@@ -153,19 +153,29 @@ def simtest():
 def check_results():
     K = list(range(7, 13))
     names = [f'BigRD_K{k}' for k in K]
+    Nx = 199
+    x = np.linspace(0, 40, Nx)
+    xx, yy = np.meshgrid(x, x)
+    cmap = 'cool'
     for name in names:
         q = np.load(name + '_q.npy')
         p = np.load(name + '_p.npy')
+        max_ = max(np.amax(p), np.amax(q))
+        min_ = min(np.amin(p), np.amin(q))
 
-        fig, ax = plt.subplots()
-        cont1 = ax.contour(p)
-        fig.colorbar(cont1)
-
-        fig, ax = plt.subplots()
-        cont2 = ax.contour(q)
-        fig.colorbar(cont2)
-
-    plt.show()
+        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 3.5))
+        # im = ax1.imshow(p, extent=[0, 40, 0, 40],
+        #                 origin='lower', cmap='coolwarm', vmin=min_,
+        #                 vmax=max_)
+        im = ax1.contour(xx, yy, p, cmap=cmap, vmin=min_, vmax=max_)
+        # ax2.imshow(q, extent=[0, 40, 0, 40], origin='lower', cmap='coolwarm',
+        #            vmin=min_, vmax=max_)
+        ax2.contour(xx, yy, q, cmap=cmap, vmin=min_, vmax=max_)
+        bounds = ax1.get_position().bounds
+        fig.subplots_adjust(right=0.85)
+        cbar_ax = fig.add_axes([0.9, bounds[1], 0.05, bounds[3]])
+        fig.colorbar(im, cax=cbar_ax)
+        fig.savefig(name + '.pdf')
 
 
 def main():
