@@ -75,7 +75,7 @@
 	\begin{equation}\label{key}
 		x_1^* = \frac{-\beta - \sqrt{\beta^2 - 4\alpha \gamma}}{2 \alpha}, \quad \alpha=-a_1, \beta = a_1p_1-a_2p_2-r_1, \gamma =a_2p_2p_1
 	\end{equation}
-	with $ x_2^* = p_2 $, $ y^* = q $, $ z^* = r $. Similarly varying $ r_2 $ gives
+	with $ x_2^* = p_2 $, $ y^* = q $, $ z^* = r $. Similarly varying $ r_2 $ gives (with $ x_1^* = p_1 $, $ y^* = q $, $ z^* = r $)
 	\begin{equation}\label{key}
 		x_2^* = \frac{-\beta - \sqrt{\beta^2 - 4\alpha \gamma}}{2 \alpha}, \quad \alpha=-b_2, \beta = b_2p_2-b_1p_1-b_3q-r_2, \gamma =b_1p_1p_2 + b_3qp_2
 	\end{equation}
@@ -87,6 +87,55 @@
 	\begin{equation}\label{key}
 		z^* = \frac{d_1 q r + e_1p_1r}{d_1q+e_1p_1+r_4}
 	\end{equation}
+	We run each simulation for 151 different values of $ r_i $ in the intervals
+	\begin{equation}\label{key}
+		r_1 \in [0,3], \quad r_2 \in [0, 20], \quad r_3 \in [0, 60] \quad r_4 \in [0, 60]
+	\end{equation}
+	and plot the analytical result along with the value at the last time step (500 time steps, with $ \Delta t = 5\D10^{-4} $ using RK4). We also plot the relative difference between the analytical and simulated result. This is all seen in figure \ref{fig:deaths1}. Sure enough, the analytical and simulated results differ only slightly, with a relative difference on the order of magnitude of $ 10^{-5} $ in any of the simulations.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{Deaths.pdf}
+		\caption{Equilibria values for the populations, as a function of their death rates. In each experiment we only vary one parameter. All other death rates are kept at 0. On the right the relative difference between the analytical and simulated result is plotted.}
+		\label{fig:deaths1}
+	\end{figure}
+
+	Lastly, we examine the effect of varying all four death parameters at once. We generate a set of 4 random death parameters (in the same interval as before) 20 times, and run the simulation for each of these sets of parameters.
+	
+	To estimate the equilibrium positions we also employ a multivariate Newtons method for solving nonlinear equations, with a tolerance of RMS between iterates of $ 10^{-6} $. The results are tabulated below in table \ref{tab:deaths}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{c|c|c|c|c}
+			Parameter & $ x_1 $ & $ x_2 $ & $ y $ & $ z $ \\
+			\hline
+			\hline
+			Death Rate & 0.229 & 1.944 & 6.433 & 29.497  \\
+			Analytical & 4.985 & 4.922 & 92.623 & 75.846  \\
+			Simulated & 4.985 & 4.922 & 92.622 & 75.845  \\
+			Relative error & $ -1.50\D10^{-5} $ & $ -6.06\D10^{-7} $ & $ -1.29\D10^{-5} $ & $ -9.68\D10^{-6} $ \\
+			\hline
+			\hline
+			Death Rate & 1.395 & 3.031 & 50.520 & 14.019  \\
+			Analytical & 4.907 & 4.841 & 63.178 & 81.840  \\
+			Simulated & 4.906 & 4.841 & 63.167 & 81.819  \\
+			Relative error & $-2.69\D10^{-5}$ & $-1.79\D10^{-5}$ & $-1.75\D10^{-4}$ & $-2.547\D10^{-4}$  \\
+			\hline
+			\hline
+			Death Rate & 2.654 & 4.428 & 0.532 & 8.029  \\
+			Analytical & 4.823 & 4.833 & 99.456 & 92.530  \\
+			Simulated & 4.823 & 4.833 & 99.456 & 92.530  \\
+			Relative error & $-1.80\D10^{-5}$ & $-3.38\D10^{-7}$ & $-8.38\D10^{-7}$ & $-7.17\D10^{-7}$  \\
+			\hline
+			\hline
+			Death Rate & 0.070 & 17.688 & 51.153 & 31.053  \\
+			Analytical & 4.995 & 4.152 & 57.450 & 64.913  \\
+			Simulated & 4.995 & 4.151 & 57.404 & 64.852  \\
+			Relative error & $-4.82\D10^{-5}$ & $-2.36\D10^{-4}$ & $-7.92\D10^{-4}$ & $-9.38\D10^{-4}$
+		\end{tabular}
+	\caption{4 different simulations, with random death rates. Showing the analytical and simulated equilibrium, along with the relative error.}
+	\label{tab:deaths}
+	\end{table}
 	
 	
 	\newpage
