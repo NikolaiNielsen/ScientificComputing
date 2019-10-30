@@ -80,7 +80,7 @@ def update_ghosts(p, q):
     return p, q
 
 
-def simRD(Nx, params, Nt=None, T_end=2000):
+def simRD(Nx, params, Nt=None, T_end=2000, return_all=False):
     """
     Simulates reaction-diffusion
     """
@@ -92,7 +92,7 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
     # Calc timestep
     if Nt is None:
-        dt = h*h/(4*max(params)*1.2)
+        dt = h*h/(4*max(params)*2)
         Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
@@ -115,6 +115,9 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 
     residuals = np.zeros((2, Nt))
 
+    p_all = [p_new]
+    q_all = [q_new]
+
     bar = Bar("Simulating", max=Nt)
     bar.next()
     for k in range(1, Nt):
@@ -126,9 +129,14 @@ def simRD(Nx, params, Nt=None, T_end=2000):
         p_new, q_new = update_ghosts(p_new, q_new)
         # propagate solution
         p_old, q_old = p_new, q_new
+        if return_all:
+            p_all.append(p_new.copy())
+            q_all.append(q_new.copy())
         bar.next()
     bar.finish()
 
+    if return_all:
+        return p_all, q_all, xx, yy, residuals
     # Only return computational domain:
     p = p_new[1:Nx+1, 1:Nx+1]
     q = q_new[1:Nx+1, 1:Nx+1]
@@ -182,9 +190,31 @@ def check_results():
         fig.savefig(name + '.pdf')
 
 
+def check_residuals():
+    K = [9, 10, 11, 12]
+    names = [f'BigRD_K{k}' for k in K]
+    for name in names:
+        fig, ax = plt.subplots()
+        res = np.load(name + "_res.npy")
+        ax.plot(res[0])
+        ax.set_yscale('log')
+        ax.set_title(name)
+    plt.show()
+
+
+def test_small():
+    Nx = 41
+    params = [1, 8, 4.5, 7]
+    p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+    ax1.imshow(p)
+    ax2.plot(res[0])
+    ax2.set_yscale('log')
+    plt.show()
+
+
 def main():
-    # simtest()
-    check_results()
+    test_small()
 
 
 if __name__ == "__main__":
