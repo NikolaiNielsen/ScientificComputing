@@ -140,28 +140,30 @@ def simRD(Nx, params, Nt=None, T_end=2000):
 def simtest():
     Nx = 201
     params = [1, 8, 4.5, 9]
-    K = [9]
+    K = [11, 12]
     file1 = [f'BigRD_K{i}_p' for i in K]
     file2 = [f'BigRD_K{i}_q' for i in K]
-    for k, f1, f2 in zip(K, file1, file2):
+    file3 = [f'BigRD_K{i}_res' for i in K]
+    for k, f1, f2, f3 in zip(K, file1, file2, file3):
         params[-1] = k
         p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
         np.save(f1, p)
         np.save(f2, q)
+        np.save(f3, res)
 
 
 def check_results():
     K = list(range(7, 13))
     names = [f'BigRD_K{k}' for k in K]
-    Nx = 199
+    Nx = 201
     x = np.linspace(0, 40, Nx)
     xx, yy = np.meshgrid(x, x)
     cmap = 'coolwarm'
     for name in names:
         q = np.load(name + '_q.npy')
         p = np.load(name + '_p.npy')
-        max_ = max(np.amax(p), np.amax(q))
-        min_ = min(np.amin(p), np.amin(q))
+        # max_ = max(np.amax(p), np.amax(q))
+        # min_ = min(np.amin(p), np.amin(q))
 
         fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
         im1 = ax1.contour(xx, yy, p, cmap=cmap)
