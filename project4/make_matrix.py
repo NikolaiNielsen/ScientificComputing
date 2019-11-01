@@ -37,7 +37,8 @@ def create_diffusion_jacobian(p, c, dt, h, sparse=True):
     N = p.shape[0]
     if sparse:
         jac = sp.lil_matrix((N**2, N**2))
-    # jac = np.zeros(((N)**2, (N)**2))
+    else:
+        jac = np.zeros(((N)**2, (N)**2))
     # Populating inner part of the jacobian
     const1 = 1-2*dt*c/h**2
     const2 = -dt*c/(2*h**2)
@@ -72,28 +73,36 @@ def create_b_vec(p, c, h, dt):
     return b.flatten()
 
 
-def test_jac():
+def test_2D():
     Nx = 101
     x, h = linspace_with_ghosts(0, 1, Nx)
+    xx, yy = np.meshgrid(x, x)
     p = np.zeros((Nx+2, Nx+2))
     c = 1
-    dt = 0.001
-    Nt = 10
-    jac = create_diffusion_jacobian(p, c, dt, h)
+    dt = (h**2/(2*c))**2
+    Nt = 200
+    jac = create_diffusion_jacobian(p, c, dt, h, sparse=True)
+    # print(jac)
     jac = jac.tocsr()
-    p[x == 0.5, x == 0.5] = 1/h**2
+    # sigma = 0.1
+    # p = np.exp(-((xx-0.5)**2/(2*sigma**2) + (yy-0.5)**2/(2*sigma**2)))
+    p[Nx//2, Nx//2] = 10
     pold = p.copy()
 
     xx, yy = np.meshgrid(x, x)
-    b = create_b_vec(pold, c, h, dt)
+    # for i in range(1, Nt):
+    b = create_b_vec(p, c, h, dt)
     p = splin.spsolve(jac, b).reshape((Nx+2, Nx+2))
 
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.plot_surface(xx, yy, p)
+    # fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    # ax.plot_surface(xx, yy, p)
+    fig, ax = plt.subplots()
+    ax.plot(p[50])
+    print(p[50, 50])
     plt.show()
 
 
-def test_diffusion():
+def test_1D():
     # Per https://pycav.readthedocs.io/en/latest/api/pde/crank_nicolson.html
     Nx = 101
     x, h = linspace_with_ghosts(0, 1, Nx)
@@ -136,7 +145,7 @@ def test_diffusion():
 
 
 def main():
-    test_jac()
+    test_2D()
 
 
 if __name__ == "__main__":
