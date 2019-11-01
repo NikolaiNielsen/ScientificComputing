@@ -85,10 +85,8 @@ def test_jac():
     pold = p.copy()
 
     xx, yy = np.meshgrid(x, x)
-    for i in range(1, Nt):
-        b = create_b_vec(pold, c, h, dt)
-        p = splin.spsolve(jac, b).reshape((Nx+2, Nx+2))
-        pold = p
+    b = create_b_vec(pold, c, h, dt)
+    p = splin.spsolve(jac, b).reshape((Nx+2, Nx+2))
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot_surface(xx, yy, p)
@@ -138,7 +136,7 @@ def test_diffusion():
 
 
 def main():
-    test_diffusion()
+    test_jac()
 
 
 if __name__ == "__main__":
