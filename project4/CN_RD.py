@@ -31,10 +31,11 @@ def indexHelper(i, j, N, n=0):
     return N**2 * n + N * i + j
 
 
-def RD_jacobian_const(Nx, params, h, dt):
+def RD_jacobian_const(p, params, h, dt):
     """
     Creates the jacobian for the Reaction Diffusion problem.
     """
+    Nx = p.shape[0]
     Dp, Dq, C, K = params
     jac = sp.lil_matrix((2*Nx*Nx, 2*Nx*Nx))
     N = jac.shape[0]
@@ -111,6 +112,28 @@ def RD_jacobian_diag(p, q, params, h, dt):
     return jac
 
 
+def f_consts(p, q, params, h, dt, alpha, beta):
+    Dp, Dq, C, K = params
+    alpha = p.copy()
+    beta = q.copy()
+    pij = p[1:-1, 1:-1]
+    qij = q[1:-1, 1:-1]
+    plap = calc_laplace(p, h)
+    qlap = calc_laplace(q, h)
+
+    alpha[1:-1, 1:-1] = pij + (Dp*plap + pij*pij*qij + C - (K+1)*pij)*dt/2
+    beta[1:-1, 1:-1] = qij + (Dq*qlap - pij*pij*qij + K*pij)*dt/2
+    f = np.array((alpha, beta)).flatten()
+    return f
+
+
+def objective_function(p, q, params, h, dt, alpha, beta):
+    """
+    """
+    N = p.shape[0]
+
+
+
 def main():
     Nx = 101
     p = np.ones((Nx, Nx))
@@ -120,7 +143,7 @@ def main():
     dt = 1
     h = 1
     jac1 = RD_jacobian_diag(p, q, params, h, dt)
-    jac2 = RD_jacobian_const(Nx, params, h, dt)
+    jac2 = RD_jacobian_const(p, params, h, dt)
     print(jac1.shape)
     print(jac2.shape)
     jac = jac1+jac2
