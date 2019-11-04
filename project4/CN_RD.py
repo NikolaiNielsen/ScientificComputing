@@ -127,11 +127,23 @@ def f_consts(p, q, params, h, dt, alpha, beta):
     return f
 
 
-def objective_function(p, q, params, h, dt, alpha, beta):
+def objective_function(p, q, params, h, dt, consts):
     """
     """
     N = p.shape[0]
+    Dp, Dq, C, K = params
+    pcont = p.copy()
+    qcont = q.copy()
 
+    pij = p[1:-1, 1:-1]
+    qij = q[1:-1, 1:-1]
+    plap = calc_laplace(p, h)
+    qlap = calc_laplace(q, h)
+    pcont[1:-1, 1:-1] = pij - (Dp*plap + pij*pij*qij + C - (K+1)*pij)*dt/2
+    qcont[1:-1, 1:-1] = qij - (Dq*qlap - pij*pij*qij + K*pij)*dt/2
+
+    f = np.array((pcont, qcont)).flatten() - consts
+    return -f
 
 
 def main():
