@@ -33,8 +33,65 @@ def indexHelper(i, j, N, n=0):
 
 def RD_jacobian_const(Nx, params, h, dt):
     """
+    Creates the jacobian for the Reaction Diffusion problem.
     """
-    pass
+    Dp, Dq, C, K = params
+    jac = sp.lil_matrix((2*Nx*Nx, 2*Nx*Nx))
+    N = jac.shape[0]
+
+    p_const1 = 1+(K+1+4*Dp/h**2)*dt/2
+    p_const2 = -dt*Dp/(2*h**2)
+
+    q_const1 = 1+2*dt*Dq/h**2
+    q_const2 = -dt*Dq/(2*h**2)
+    q_const3 = -dt*K/2
+
+    for i in range(1, Nx-1):
+        # top ghosts:
+        ptop = indexHelper(0, i, Nx, 0)
+        qtop = indexHelper(0, i, Nx, 1)
+        jac[ptop, ptop] = 1
+        jac[qtop, qtop] = 1
+
+        # Bottom ghosts
+        pbot = indexHelper(Nx-1, i, Nx, 0)
+        qbot = indexHelper(Nx-1, i, Nx, 1)
+        jac[pbot, pbot] = 1
+        jac[qbot, qbot] = 1
+
+        for j in range(1, Nx-1):
+            # Populate inner nodes:
+
+            # The i's and j's needed for the laplacian
+            i_arr = np.array([i, i+1, i-1, i, i])
+            j_arr = np.array([j, j, j, j+1, j-1])
+            # Converted to vector index
+            pij = indexHelper(i_arr, j_arr, Nx, 0)
+            qij = indexHelper(i_arr, j_arr, Nx, 1)
+
+            # The current node for p and q
+            pm = pij[0]
+            qm = qij[0]
+
+            # Laplacian
+            jac[[pm]*5, pij] = [p_const1] + [p_const2] * 4
+            jac[[qm]*5, qij] = [q_const1] + [q_const2] * 4
+
+            # There is only a constant coupling from p to q.
+            jac[qm, pm] = q_const3
+
+    for i in range(0, Nx):
+        # left and right nodes.
+        pleft = indexHelper(i, 0, Nx, 0)
+        qleft = indexHelper(i, 0, Nx, 1)
+        pright = indexHelper(i, Nx-1, Nx, 0)
+        qright = indexHelper(i, Nx-1, Nx, 1)
+        jac[pleft, pleft] = 1
+        jac[qleft, qleft] = 1
+        jac[pright, pright] = 1
+        jac[qright, qright] = 1
+
+    return jac.todia()
 
 
 def RD_jacobian_diag(p, q, params, h, dt):
@@ -55,15 +112,18 @@ def RD_jacobian_diag(p, q, params, h, dt):
 
 
 def main():
-    p = np.ones((4, 4))
-    q = np.ones((4, 4))
+    Nx = 101
+    p = np.ones((Nx, Nx))
+    q = np.ones((Nx, Nx))
 
     params = [1, 1, 1, 1]
     dt = 1
     h = 1
-    np.set_printoptions(threshold=np.inf)
-    jac = RD_jacobian_diag(p, q, params, h, dt)
-    print(jac.toarray())
+    jac1 = RD_jacobian_diag(p, q, params, h, dt)
+    jac2 = RD_jacobian_const(Nx, params, h, dt)
+    print(jac1.shape)
+    print(jac2.shape)
+    jac = jac1+jac2
     fig, ax = plt.subplots()
     ax.spy(jac)
     plt.show()
