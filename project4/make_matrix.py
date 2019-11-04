@@ -324,7 +324,7 @@ def test_1D_CN_diffusion():
     plt.show()
 
 
-def test_matrix():
+def spy_matrix():
     Nx = 6
     x, h = linspace_with_ghosts(0, 5, Nx)
     p = np.outer(x, x)
@@ -357,7 +357,7 @@ def test_CN_coupled_diffusion():
 
 
 def main():
-    test_CN_coupled_diffusion()
+    spy_matrix()
 
 
 if __name__ == "__main__":
