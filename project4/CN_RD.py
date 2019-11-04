@@ -4,6 +4,7 @@ import scipy.sparse.linalg as splin
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from f4 import *
+from progress.bar import Bar
 
 
 def calc_laplace(z, dx):
@@ -146,11 +147,10 @@ def objective_function(p, q, params, h, dt, consts):
     return -f
 
 
-def CN_next_step(p, q, params, h, dt, maxiter=20, tol=1e-3):
+def CN_next_step(p, q, params, h, dt, jac_const, maxiter=20, tol=1e-3):
     x = np.array((p, q)).flatten()
     N = p.shape[0]
     consts = f_consts(p, q, params, h, dt)
-    jac_const = RD_jacobian_const(p, params, h, dt)
 
     for k in range(maxiter):
         f = objective_function(p, q, params, h, dt, consts)
@@ -160,9 +160,34 @@ def CN_next_step(p, q, params, h, dt, maxiter=20, tol=1e-3):
         x = x + s
         p, q = x.reshape((2, N, N))
         res = np.sum(np.sqrt(s**2))/s.size
-        print(res)
         if res <= tol:
             break
+
+    return p, q
+
+
+def update_ghosts(p, q):
+    """
+    Update ghost nodes for p and q arrays.
+    We have no-flux Neumann conditions, so dp/dn=dq/dn = 0 on all edges.
+    We use a central difference approximation to uphold this
+    """
+
+    # Horizontal borders
+    p[0] = p[1]
+    p[-1] = p[-2]
+
+    # Vertical borders
+    p[:, 0] = p[:, 1]
+    p[:, -1] = p[:, -2]
+
+    # Horizontal borders
+    q[0] = q[1]
+    q[-1] = q[-2]
+
+    # Vertical borders
+    q[:, 0] = q[:, 1]
+    q[:, -1] = q[:, -2]
 
     return p, q
 
@@ -170,17 +195,16 @@ def CN_next_step(p, q, params, h, dt, maxiter=20, tol=1e-3):
 def main():
     params = [1, 8, 4.5, 9]
     Dp, Dq, C, K = params
-    T_end = 2000
-    Nx = 101
+    T_end = 100
+    Nx = 41
     x, h = linspace_with_ghosts(0, 40, Nx)
     xx, yy = np.meshgrid(x, x)
 
     # Calc timestep
-    dt = h*h/(4)
+    dt = h*h/12
     Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
-    print(Nt)
 
     p_new = np.zeros((Nx+2, Nx+2))
     q_new = np.zeros((Nx+2, Nx+2))
@@ -193,7 +217,38 @@ def main():
     q0 = K/C + 0.2
     p_new[initial] = p0
     q_new[initial] = q0
-    p2, q2 = CN_next_step(p_new, q_new, params, h, dt)
+
+    p_old = p_new.copy()
+    q_old = q_new.copy()
+
+    jac_const = RD_jacobian_const(p_new, params, h, dt)
+
+    bar = Bar("Simulating", max=Nt)
+    bar.next()
+    for k in range(1, Nt):
+        # Update domain based on last step:
+        p_new, q_new = CN_next_step(p_old, q_old, params, h, dt, jac_const)
+        # Update ghost nodes
+        p_new, q_new = update_ghosts(p_new, q_new)
+        # propagate solution
+        p_old, q_old = p_new, q_new
+        bar.next()
+    bar.finish()
+
+    cmap = 'coolwarm'
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
+    im1 = ax1.imshow(p_new, cmap=cmap, origin='lower')
+    im2 = ax2.imshow(q_new, cmap=cmap, origin='lower')
+    ax1.set_aspect('equal')
+    ax2.set_aspect('equal')
+    bounds1 = ax1.get_position().bounds
+    bounds2 = ax2.get_position().bounds
+    fig.subplots_adjust(bottom=0.2)
+    cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
+    cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
+    fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
+    fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
+    plt.show()
 
 
 if __name__ == "__main__":
