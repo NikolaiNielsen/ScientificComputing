@@ -24,13 +24,16 @@ def calc_laplace(z, dx):
 
 
 def indexHelper(i, j, N):
+    """
+    Convert matrix-indexing (i,j) to vector-indexing (m). Assumes a NxN matrix.
+    """
     return N * i + j
 
 
 def create_implicit_diffusion_jacobian(p, c, dt, h, sparse=True):
     """
     Create the jacobian for the diffusion system. N points in each direction.
-    Ghost nodes around it.
+    With ghost nodes.
     """
 
     # Get number of points
@@ -151,6 +154,43 @@ def test_implicit_diffusion():
     plt.show()
 
 
+def test_CN_diffusion():
+    # Initialize grid
+    Nx = 101
+    x, h = linspace_with_ghosts(0, 1, Nx)
+    xx, yy = np.meshgrid(x, x)
+
+    # Initialize initial condition
+    sigma = 0.1
+    # p = np.exp(-((xx-0.5)**2/(2*sigma**2) + (yy-0.5)**2/(2*sigma**2)))
+    p = np.zeros(xx.shape)
+    p[Nx//2, Nx//2] = 10
+    p[0] = 0
+    p[-1] = 0
+    p[:, 0] = 0
+    p[:, -1] = 0
+
+    pold = p.copy()
+    # Set parameters
+    c = 1
+    dt = h**2/(3*c)
+    Nt = 100
+    jac = create_implicit_diffusion_jacobian(p, c, dt, h, sparse=True)
+    jac = jac.tocsr()
+
+    for i in range(1, Nt):
+        b = CN_b_vec(p, c, h, dt)
+        p = splin.spsolve(jac, b).reshape(xx.shape)
+        p[0] = 0
+        p[-1] = 0
+        p[:, 0] = 0
+        p[:, -1] = 0
+
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    ax.plot_surface(xx, yy, p)
+    plt.show()
+
+
 def test_1D_CN_diffusion():
     # Per https://pycav.readthedocs.io/en/latest/api/pde/crank_nicolson.html
     Nx = 101
@@ -194,7 +234,7 @@ def test_1D_CN_diffusion():
 
 
 def main():
-    test_implicit_diffusion()
+    test_CN_diffusion()
 
 
 if __name__ == "__main__":
