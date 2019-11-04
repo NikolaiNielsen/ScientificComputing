@@ -334,8 +334,30 @@ def test_matrix():
     plt.show()
 
 
+def test_CN_coupled_diffusion():
+    params = [1, 1, 1, 1]
+    Nx = 41
+    x, h = linspace_with_ghosts(0, 1, Nx)
+    dt = h**2/2
+    xx, yy = np.meshgrid(x, x)
+    p = np.zeros(xx.shape)
+    q = np.zeros(xx.shape)
+
+    p[(Nx+2)//2, (Nx+2)//2] = 10
+    q[(Nx+2)//2, (Nx+2)//2] = 5
+
+    jac = CN_coupled_diffusion_jac(p, params, h, dt).tocsr()
+    b = coupled_diffusion_b_vec(p, q, params, h, dt)
+
+    p, q = splin.spsolve(jac, b).reshape((2, Nx+2, Nx+2))
+    fig, (ax1, ax2) = plt.subplots(ncols=2, subplot_kw=dict(projection='3d'))
+    plot_without_ghosts(xx, yy, p, ax1)
+    plot_without_ghosts(xx, yy, q, ax2)
+    plt.show()
+
+
 def main():
-    test_matrix()
+    test_CN_coupled_diffusion()
 
 
 if __name__ == "__main__":
