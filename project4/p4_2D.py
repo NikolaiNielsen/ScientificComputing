@@ -80,7 +80,7 @@ def update_ghosts(p, q):
     return p, q
 
 
-def simRD(Nx, params, Nt=None, T_end=2000, return_all=False):
+def simRD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
     """
     Simulates reaction-diffusion
     """
@@ -92,7 +92,7 @@ def simRD(Nx, params, Nt=None, T_end=2000, return_all=False):
 
     # Calc timestep
     if Nt is None:
-        dt = h*h/(4*max(params)*2)
+        dt = h*h/(4*max(params)*2*1.2)
         Nt = np.ceil(T_end/dt).astype(int)
     t = np.linspace(0, T_end, Nt)
     dt = t[1]-t[0]
@@ -132,6 +132,9 @@ def simRD(Nx, params, Nt=None, T_end=2000, return_all=False):
         if return_all:
             p_all.append(p_new.copy())
             q_all.append(q_new.copy())
+
+        # if tolf > residuals[0, k]:
+        #     break
         bar.next()
     bar.finish()
 
@@ -146,12 +149,12 @@ def simRD(Nx, params, Nt=None, T_end=2000, return_all=False):
 
 
 def simtest():
-    Nx = 201
+    Nx = 41
     params = [1, 8, 4.5, 9]
-    K = [11, 12]
-    file1 = [f'BigRD_K{i}_p' for i in K]
-    file2 = [f'BigRD_K{i}_q' for i in K]
-    file3 = [f'BigRD_K{i}_res' for i in K]
+    K = [7, 8, 9, 10, 11, 12]
+    file1 = [f'RD_K{i}_p' for i in K]
+    file2 = [f'RD_K{i}_q' for i in K]
+    file3 = [f'RD_K{i}_res' for i in K]
     for k, f1, f2, f3 in zip(K, file1, file2, file3):
         params[-1] = k
         p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
@@ -162,24 +165,24 @@ def simtest():
 
 def check_results():
     K = list(range(7, 13))
-    names = [f'BigRD_K{k}' for k in K]
-    Nx = 201
+    names = [f'RD_K{k}' for k in K]
+    Nx = 41
     x = np.linspace(0, 40, Nx)
     xx, yy = np.meshgrid(x, x)
     cmap = 'coolwarm'
-    for name in names:
+    for n, name in enumerate(names):
         q = np.load(name + '_q.npy')
         p = np.load(name + '_p.npy')
         # max_ = max(np.amax(p), np.amax(q))
         # min_ = min(np.amin(p), np.amin(q))
 
         fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
-        im1 = ax1.contour(xx, yy, p, cmap=cmap)
-        im2 = ax2.contour(xx, yy, q, cmap=cmap)
+        im1 = ax1.imshow(p, cmap=cmap, origin='lower')
+        im2 = ax2.imshow(q, cmap=cmap, origin='lower')
         ax1.set_aspect('equal')
         ax2.set_aspect('equal')
-        ax1.set_title('$p(x,y,t=2000)$')
-        ax2.set_title('$q(x,y,t=2000)$')
+        ax1.set_title(f'$p(x,y,t=2000)$, $K=${K[n]}')
+        ax2.set_title(f'$q(x,y,t=2000)$, $K=${K[n]}')
         bounds1 = ax1.get_position().bounds
         bounds2 = ax2.get_position().bounds
         fig.subplots_adjust(bottom=0.2)
@@ -191,14 +194,16 @@ def check_results():
 
 
 def check_residuals():
-    K = [9, 10, 11, 12]
-    names = [f'BigRD_K{k}' for k in K]
-    for name in names:
-        fig, ax = plt.subplots()
+    K = [7, 8, 9, 10, 11, 12]
+    names = [f'RD_K{k}' for k in K]
+    fig, ax = plt.subplots(nrows=3, ncols=2, figsize=(8, 6))
+    ax = ax.flatten()
+    for n, name in enumerate(names):
         res = np.load(name + "_res.npy")
-        ax.plot(res[0])
-        ax.set_yscale('log')
-        ax.set_title(name)
+        ax[n].plot(res[0])
+        ax[n].set_yscale('log')
+        ax[n].set_title(name)
+    fig.tight_layout()
     plt.show()
 
 
@@ -214,7 +219,9 @@ def test_small():
 
 
 def main():
-    test_small()
+    # simtest()
+    check_results()
+    check_residuals()
 
 
 if __name__ == "__main__":
