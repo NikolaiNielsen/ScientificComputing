@@ -112,7 +112,7 @@ def RD_jacobian_diag(p, q, params, h, dt):
     return jac
 
 
-def f_consts(p, q, params, h, dt, alpha, beta):
+def f_consts(p, q, params, h, dt):
     Dp, Dq, C, K = params
     alpha = p.copy()
     beta = q.copy()
@@ -146,22 +146,54 @@ def objective_function(p, q, params, h, dt, consts):
     return -f
 
 
-def main():
-    Nx = 101
-    p = np.ones((Nx, Nx))
-    q = np.ones((Nx, Nx))
+def CN_next_step(p, q, params, h, dt, maxiter=20, tol=1e-3):
+    x = np.array((p, q)).flatten()
+    N = p.shape[0]
+    consts = f_consts(p, q, params, h, dt)
+    jac_const = RD_jacobian_const(p, params, h, dt)
 
-    params = [1, 1, 1, 1]
-    dt = 1
-    h = 1
-    jac1 = RD_jacobian_diag(p, q, params, h, dt)
-    jac2 = RD_jacobian_const(p, params, h, dt)
-    print(jac1.shape)
-    print(jac2.shape)
-    jac = jac1+jac2
-    fig, ax = plt.subplots()
-    ax.spy(jac)
-    plt.show()
+    for k in range(maxiter):
+        f = objective_function(p, q, params, h, dt, consts)
+        jac_diag = RD_jacobian_diag(p, q, params, h, dt)
+        jac = jac_const + jac_diag
+        s = splin.spsolve(jac, f)
+        x = x + s
+        p, q = x.reshape((2, N, N))
+        res = np.sum(np.sqrt(s**2))/s.size
+        print(res)
+        if res <= tol:
+            break
+
+    return p, q
+
+
+def main():
+    params = [1, 8, 4.5, 9]
+    Dp, Dq, C, K = params
+    T_end = 2000
+    Nx = 101
+    x, h = linspace_with_ghosts(0, 40, Nx)
+    xx, yy = np.meshgrid(x, x)
+
+    # Calc timestep
+    dt = h*h/(4)
+    Nt = np.ceil(T_end/dt).astype(int)
+    t = np.linspace(0, T_end, Nt)
+    dt = t[1]-t[0]
+    print(Nt)
+
+    p_new = np.zeros((Nx+2, Nx+2))
+    q_new = np.zeros((Nx+2, Nx+2))
+
+    # Populate initial condition - includes ghost nodes
+    initial_x = (xx <= 30) * (xx >= 10)
+    initial_y = (yy <= 30) * (yy >= 10)
+    initial = initial_x * initial_y
+    p0 = C + 0.1
+    q0 = K/C + 0.2
+    p_new[initial] = p0
+    q_new[initial] = q0
+    p2, q2 = CN_next_step(p_new, q_new, params, h, dt)
 
 
 if __name__ == "__main__":
