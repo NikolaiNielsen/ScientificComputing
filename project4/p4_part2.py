@@ -314,6 +314,9 @@ def CN_next_step(p, q, params, h, dt, jac_const, maxiter=20, tol=1e-3):
         x = x + s
         p, q = x.reshape((2, N, N))
 
+        # Remember to update ghost nodes!
+        p, q = update_ghosts(p, q)
+
         # Test for convergence
         res = np.sum(np.sqrt(s**2))/s.size
         if res <= tol:
@@ -353,10 +356,8 @@ def sim_CN(Nx, params, Nt=None, T_end=100):
     bar = Bar("Simulating", max=Nt)
     bar.next()
     for k in range(1, Nt):
-        # Update domain based on last step:
+        # Update all nodes based on last step:
         p_new, q_new = CN_next_step(p_old, q_old, params, h, dt, jac_const)
-        # Update ghost nodes
-        p_new, q_new = update_ghosts(p_new, q_new)
         # propagate solution
         p_old, q_old = p_new, q_new
         bar.next()
@@ -407,12 +408,12 @@ def forward_results():
 
 
 def CN_results():
-    simulate = True
+    simulate = False
     Nx = 41
     params = [1, 8, 4.5, 9]
     K = [7, 8, 9, 10, 11, 12]
-    file1 = [f'CN_K{i}_p' for i in k]
-    file2 = [f'CN_K{i}_q' for i in k]
+    file1 = [f'CN_K{i}_p' for i in K]
+    file2 = [f'CN_K{i}_q' for i in K]
     cmap = 'coolwarm'
     p_all = []
     q_all = []
@@ -427,7 +428,7 @@ def CN_results():
     else:
         for f1, f2 in zip(file1, file2):
             p = np.load(f1 + ".npy")
-            q = np.load(f1 + ".npy")
+            q = np.load(f2 + ".npy")
             p_all.append(p)
             q_all.append(q)
 
@@ -438,8 +439,8 @@ def CN_results():
         im2 = ax2.imshow(q, cmap=cmap, origin='lower')
         ax1.set_aspect('equal')
         ax2.set_aspect('equal')
-        ax1.set_title(f'$p(x,y,t=100)$, $K=${K[n]}')
-        ax2.set_title(f'$q(x,y,t=100)$, $K=${K[n]}')
+        ax1.set_title(f'$p(x,y,t=100)$, $K=${k}')
+        ax2.set_title(f'$q(x,y,t=100)$, $K=${k}')
         bounds1 = ax1.get_position().bounds
         bounds2 = ax2.get_position().bounds
         fig.subplots_adjust(bottom=0.2)
@@ -451,8 +452,8 @@ def CN_results():
 
 
 def main():
-    sim_forwards()
-    forward_results()
+    # sim_forwards()
+    # forward_results()
     CN_results()
 
 
