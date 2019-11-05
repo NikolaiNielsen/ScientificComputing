@@ -22,7 +22,7 @@ def calc_laplace(z, dx):
     return z_lap
 
 
-def calc_next_time(p, q, h, dt, params):
+def forward_next_time(p, q, h, dt, params):
     """
     Calculates the next time step for p and q, given the reaction diffusion
     equations. Uses Finite Difference approximations in calculating
@@ -80,7 +80,7 @@ def update_ghosts(p, q):
     return p, q
 
 
-def simRD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
+def forward_RD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
     """
     Simulates reaction-diffusion
     """
@@ -122,7 +122,7 @@ def simRD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
     bar.next()
     for k in range(1, Nt):
         # Update domain based on last step:
-        p_new, q_new, f, g = calc_next_time(p_old, q_old, h, dt, params)
+        p_new, q_new, f, g = forward_next_time(p_old, q_old, h, dt, params)
         residuals[0, k] = np.sum(f**2)/(Nx**2)
         residuals[1, k] = np.sum(g**2)/(Nx**2)
         # Update ghost nodes
@@ -148,7 +148,7 @@ def simRD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
     return p, q, xx, yy, residuals
 
 
-def simtest():
+def sim_forwards():
     Nx = 41
     params = [1, 8, 4.5, 9]
     K = [7, 8, 9, 10, 11, 12]
@@ -157,13 +157,13 @@ def simtest():
     file3 = [f'RD_K{i}_res' for i in K]
     for k, f1, f2, f3 in zip(K, file1, file2, file3):
         params[-1] = k
-        p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
+        p, q, xx, yy, res = forward_RD(Nx, params, T_end=2000)
         np.save(f1, p)
         np.save(f2, q)
         np.save(f3, res)
 
 
-def check_results():
+def forward_results():
     K = list(range(7, 13))
     names = [f'RD_K{k}' for k in K]
     Nx = 41
@@ -173,8 +173,6 @@ def check_results():
     for n, name in enumerate(names):
         q = np.load(name + '_q.npy')
         p = np.load(name + '_p.npy')
-        # max_ = max(np.amax(p), np.amax(q))
-        # min_ = min(np.amin(p), np.amin(q))
 
         fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
         im1 = ax1.imshow(p, cmap=cmap, origin='lower')
@@ -207,21 +205,9 @@ def check_residuals():
     plt.show()
 
 
-def test_small():
-    Nx = 41
-    params = [1, 8, 4.5, 7]
-    p, q, xx, yy, res = simRD(Nx, params, T_end=2000)
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-    ax1.imshow(p)
-    ax2.plot(res[0])
-    ax2.set_yscale('log')
-    plt.show()
-
-
 def main():
-    # simtest()
-    check_results()
-    check_residuals()
+    sim_forwards()
+    forward_results()
 
 
 if __name__ == "__main__":
