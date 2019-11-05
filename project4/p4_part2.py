@@ -439,8 +439,8 @@ def CN_results():
         im2 = ax2.imshow(q, cmap=cmap, origin='lower')
         ax1.set_aspect('equal')
         ax2.set_aspect('equal')
-        ax1.set_title(f'$p(x,y,t=2000)$, $K=${K[n]}')
-        ax2.set_title(f'$q(x,y,t=2000)$, $K=${K[n]}')
+        ax1.set_title(f'$p(x,y,t=100)$, $K=${K[n]}')
+        ax2.set_title(f'$q(x,y,t=100)$, $K=${K[n]}')
         bounds1 = ax1.get_position().bounds
         bounds2 = ax2.get_position().bounds
         fig.subplots_adjust(bottom=0.2)
