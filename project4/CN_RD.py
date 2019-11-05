@@ -222,11 +222,8 @@ def update_ghosts(p, q):
     return p, q
 
 
-def main():
-    params = [1, 8, 4.5, 9]
+def sim_CN(Nx, params, Nt=None, T_end=100):
     Dp, Dq, C, K = params
-    T_end = 100
-    Nx = 41
     x, h = linspace_with_ghosts(0, 40, Nx)
     xx, yy = np.meshgrid(x, x)
 
@@ -264,22 +261,52 @@ def main():
         p_old, q_old = p_new, q_new
         bar.next()
     bar.finish()
+    return p_new[1:-1, 1:-1], q_new[1:-1, 1:-1]
 
+
+def CN_results():
+    simulate = True
+    Nx = 41
+    params = [1, 8, 4.5, 9]
+    K = [7, 8, 9, 10, 11, 12]
+    file1 = [f'CN_K{i}_p' for i in k]
+    file2 = [f'CN_K{i}_q' for i in k]
     cmap = 'coolwarm'
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
-    im1 = ax1.imshow(p_new[1:-1, 1:-1], cmap=cmap, origin='lower')
-    im2 = ax2.imshow(q_new[1:-1, 1:-1], cmap=cmap, origin='lower')
-    ax1.set_aspect('equal')
-    ax2.set_aspect('equal')
-    bounds1 = ax1.get_position().bounds
-    bounds2 = ax2.get_position().bounds
-    fig.subplots_adjust(bottom=0.2)
-    cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
-    cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
-    fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
-    fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
-    plt.show()
+    p_all = []
+    q_all = []
+    if simulate:
+        for k, f1, f2 in zip(K, file1, file2):
+            params[-1] = k
+            p, q = sim_CN(Nx, params)
+            np.save(f1, p)
+            np.save(f2, q)
+            p_all.append(p)
+            q_all.append(q)
+    else:
+        for f1, f2 in zip(file1, file2):
+            p = np.load(f1 + ".npy")
+            q = np.load(f1 + ".npy")
+            p_all.append(p)
+            q_all.append(q)
+
+    for k, p, q in zip(K, p_all, q_all):
+        name = f"CN_K{k}.pdf"
+        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
+        im1 = ax1.imshow(p, cmap=cmap, origin='lower')
+        im2 = ax2.imshow(q, cmap=cmap, origin='lower')
+        ax1.set_aspect('equal')
+        ax2.set_aspect('equal')
+        ax1.set_title(f'$p(x,y,t=2000)$, $K=${K[n]}')
+        ax2.set_title(f'$q(x,y,t=2000)$, $K=${K[n]}')
+        bounds1 = ax1.get_position().bounds
+        bounds2 = ax2.get_position().bounds
+        fig.subplots_adjust(bottom=0.2)
+        cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
+        cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
+        fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
+        fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
+        fig.savefig(name)
 
 
 if __name__ == "__main__":
-    main()
+    CN_results()
