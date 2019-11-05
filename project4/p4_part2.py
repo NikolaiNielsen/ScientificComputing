@@ -150,49 +150,6 @@ def forward_RD(Nx, params, Nt=None, T_end=2000, return_all=False, tolf=1e-9):
     return p, q, xx, yy, residuals
 
 
-def sim_forwards():
-    Nx = 41
-    params = [1, 8, 4.5, 9]
-    K = [7, 8, 9, 10, 11, 12]
-    file1 = [f'RD_K{i}_p' for i in K]
-    file2 = [f'RD_K{i}_q' for i in K]
-    file3 = [f'RD_K{i}_res' for i in K]
-    for k, f1, f2, f3 in zip(K, file1, file2, file3):
-        params[-1] = k
-        p, q, xx, yy, res = forward_RD(Nx, params, T_end=2000)
-        np.save(f1, p)
-        np.save(f2, q)
-        np.save(f3, res)
-
-
-def forward_results():
-    K = list(range(7, 13))
-    names = [f'RD_K{k}' for k in K]
-    Nx = 41
-    x = np.linspace(0, 40, Nx)
-    xx, yy = np.meshgrid(x, x)
-    cmap = 'coolwarm'
-    for n, name in enumerate(names):
-        q = np.load(name + '_q.npy')
-        p = np.load(name + '_p.npy')
-
-        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
-        im1 = ax1.imshow(p, cmap=cmap, origin='lower')
-        im2 = ax2.imshow(q, cmap=cmap, origin='lower')
-        ax1.set_aspect('equal')
-        ax2.set_aspect('equal')
-        ax1.set_title(f'$p(x,y,t=2000)$, $K=${K[n]}')
-        ax2.set_title(f'$q(x,y,t=2000)$, $K=${K[n]}')
-        bounds1 = ax1.get_position().bounds
-        bounds2 = ax2.get_position().bounds
-        fig.subplots_adjust(bottom=0.2)
-        cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
-        cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
-        fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
-        fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
-        fig.savefig(name + '.pdf')
-
-
 def indexHelper(i, j, N, n=0):
     """
     Convert matrix-indexing (i,j) to vector-indexing (m). Assumes a
@@ -405,6 +362,48 @@ def sim_CN(Nx, params, Nt=None, T_end=100):
         bar.next()
     bar.finish()
     return p_new[1:-1, 1:-1], q_new[1:-1, 1:-1]
+
+
+def sim_forwards():
+    Nx = 41
+    params = [1, 8, 4.5, 9]
+    K = [7, 8, 9, 10, 11, 12]
+    file1 = [f'RD_K{i}_p' for i in K]
+    file2 = [f'RD_K{i}_q' for i in K]
+    file3 = [f'RD_K{i}_res' for i in K]
+    for k, f1, f2, f3 in zip(K, file1, file2, file3):
+        params[-1] = k
+        p, q, xx, yy, res = forward_RD(Nx, params, T_end=2000)
+        np.save(f1, p)
+        np.save(f2, q)
+
+
+def forward_results():
+    K = list(range(7, 13))
+    names = [f'RD_K{k}' for k in K]
+    Nx = 41
+    x = np.linspace(0, 40, Nx)
+    xx, yy = np.meshgrid(x, x)
+    cmap = 'coolwarm'
+    for n, name in enumerate(names):
+        q = np.load(name + '_q.npy')
+        p = np.load(name + '_p.npy')
+
+        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(7.5, 4))
+        im1 = ax1.imshow(p, cmap=cmap, origin='lower')
+        im2 = ax2.imshow(q, cmap=cmap, origin='lower')
+        ax1.set_aspect('equal')
+        ax2.set_aspect('equal')
+        ax1.set_title(f'$p(x,y,t=2000)$, $K=${K[n]}')
+        ax2.set_title(f'$q(x,y,t=2000)$, $K=${K[n]}')
+        bounds1 = ax1.get_position().bounds
+        bounds2 = ax2.get_position().bounds
+        fig.subplots_adjust(bottom=0.2)
+        cbar_ax1 = fig.add_axes([bounds1[0], 0.07, bounds1[2], 0.05])
+        cbar_ax2 = fig.add_axes([bounds2[0], 0.07, bounds2[2], 0.05])
+        fig.colorbar(im1, cax=cbar_ax1, orientation='horizontal')
+        fig.colorbar(im2, cax=cbar_ax2, orientation='horizontal')
+        fig.savefig(name + '.pdf')
 
 
 def CN_results():
